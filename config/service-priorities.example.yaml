@@ -1,0 +1,12 @@
+# Confirmed business ordering. These are priority classes, not calibrated scoring weights.
+version: 1
+services:
+  ai_services:
+    priority_class: primary
+    examples: ["AI applications", "automation", "agents", "RAG", "model integration", "custom AI systems"]
+  academic_technology_services:
+    priority_class: secondary
+    examples: ["technical mentoring", "graduation-project support", "programming/computing courses", "debugging", "review", "research implementation support"]
+  general_software_systems:
+    priority_class: tertiary
+    examples: ["websites", "accounting systems", "business software", "custom backend systems"]

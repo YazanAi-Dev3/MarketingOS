@@ -1,0 +1,30 @@
+# Secrets / local credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Runtime/product data that must not enter Git by default
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Agent-local operational artifacts
+.agent-workflow/runs/
+.agent-workflow/smoke/
+.worktrees/
+
+# Python/local caches
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Antigravity local/session artifacts (do not commit)
+.gemini/

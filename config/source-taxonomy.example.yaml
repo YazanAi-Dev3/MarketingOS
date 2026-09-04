@@ -1,0 +1,15 @@
+version: 1
+source_families:
+  official_registry: [company_discovery, authority]
+  chamber_association: [company_discovery, sector_mapping]
+  procurement_tenders: [buying_signal, urgency]
+  jobs_careers: [hiring_signal, expansion_signal, technology_signal]
+  business_directory: [company_discovery, contact_discovery]
+  company_website: [company_profile, pain_signal, contact_discovery]
+  business_news: [expansion_signal, funding_signal, trend_intelligence]
+  startup_ecosystem: [company_discovery, growth_signal]
+  accelerator_incubator: [company_discovery, growth_signal]
+  events_exhibitions: [company_discovery, activity_signal]
+  public_social: [pain_signal, activity_signal, content_intelligence]
+  local_community: [demand_signal, content_intelligence]
+  competitor_ecosystem: [offer_intelligence, market_mapping]

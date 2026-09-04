@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "runtime_reasoning": {
+    "preferred": "antigravity",
+    "fallback": "gemini_api",
+    "fallback_enabled": false,
+    "paid_usage_allowed": false
+  },
+  "forbidden_runtime_providers": [
+    "codex",
+    "openai_codex",
+    "chatgpt",
+    "openai"
+  ],
+  "notes": "Codex/OpenAI references are allowed in engineering/control-plane files only; product runtime provider configuration is Google-only under A-019/A-031."
+}
