@@ -32,10 +32,10 @@ Foundation milestones completed:
 - Test suite & control plane: Comprehensive unit and integration test suite passing cleanly (59 passed in ~1.6s, 100% pass rate), static control plane checks, hook self-tests, and secret scans all passing.
 - Test suite & control plane: Comprehensive unit and integration test suite passing cleanly (62 passed in ~1.3s, 100% pass rate), static control plane checks, hook self-tests, and secret scans all passing.
 - CAPSULE-002 & T-09 External Gates: Independent verification (`verifier`) and acceptance review (`reviewer`) PASSED with zero findings; Heavy Risk Review (`heavy-reviewer`) PASSED (Low residual risk). All repairs (01: qualification truth & dynamic source lookup, 02: deterministic rowid tie-breaker) verified.
+- GitHub repository & Merge: Fast-forward merged `candidate/t09-freelance-adapters` into `main` and pushed to `https://github.com/YazanAi-Dev3/MarketingOS` (tracked on `origin/main`).
 
-Next immediate steps:
-1. Complete independent external review gate confirmation (`reviewer` + `heavy-reviewer` for CAPSULE-002).
-2. Content Engine & Operator Workflow: automated drafting, approval queues, and Postiz publishing adapter.
-1. Operator merge of `candidate/t09-freelance-adapters` into `main`.
-2. Phase 1 Content Engine & Operator Workflow: automated drafting, approval queues, and Postiz publishing adapter.
-3. Telegram Operator UX & Hermes Gateway session dispatch.
+Next immediate steps (Phase 1 — Regional Source Intelligence & Acquisition Pipeline):
+1. Finalize Regional Configuration & Country Profiles (`config/countries.yaml`, covering SA, AE, SY, TR, and sector query lexicons per M-03 & M-11).
+2. End-to-End Market Scanner Pipeline: Connect `RegionalQueryPlanner` + `SearXNGAdapter` + `AcquisitionRouter` + `Freelance Adapters` into an automated multi-step market discovery and candidate ingest runner.
+3. Entity & Lead Dedup Resolution: Deduplicate company and lead identities across multiple sources using domain, commercial registration, phone/contact, and name similarity.
+4. Lead Scoring & Operator Approval Workflow (Phase 2 bridge: `M-01` AI-weighted fit scoring and Telegram operator bot integration).
