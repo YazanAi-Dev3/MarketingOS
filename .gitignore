@@ -28,3 +28,11 @@ venv/
 
 # Antigravity local/session artifacts (do not commit)
 .gemini/
+
+# Quarantined legacy Clients Hunter raw assets / credentials
+Clients-Hunter.zip
+clients-hunter*.zip
+freelance_leads.db
+*service-account*.json
+*credentials*.json
+legacy/raw/

@@ -1,6 +1,6 @@
 # Marketing OS — Documentation & Living Workflow Guide
 
-> Version 1.0 · 2026-09-03 · Purpose: keep design intent stable while code and upstream tools evolve
+> Version 2.0 · 2026-09-05 · Purpose: keep design intent stable while code and upstream tools evolve
 
 ## 1. Governing principle
 

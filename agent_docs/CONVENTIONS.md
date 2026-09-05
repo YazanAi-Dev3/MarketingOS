@@ -1,32 +1,16 @@
 # CONVENTIONS
 
-## Verified now
-
-Static control-plane verification:
-```bash
-python scripts/verify_control_plane.py
-```
-This validates the normalized manifest, Antigravity custom-agent frontmatter/tool names, required workspace files, role separation, repair budgets, exact model-pin fallback scripts, and Google-only product runtime provider guard.
-
-## Required Antigravity local smoke
-
-Run `.agents/workflow/DRY-RUN.md` after installation. Native subagent mode is not considered fully proven until AG-CC-02 (High-effort inheritance) and AG-CC-03 (candidate worktree review access) pass.
-
-## Not yet verified / do not invent
-
-The product repository is greenfield. `./scripts/verify.sh` is a design target, not yet a verified executable command. Add actual setup/test/lint/type/schema/eval commands only after they exist and have been run.
-
-## Git
-
-- `main` trusted; final merges human-controlled in V1.
-- STANDARD/HEAVY Builder uses Antigravity `workspace=branch`.
-- No concurrent writers in one worktree.
-- At most two active subagents by workflow policy.
-
-## Sensitive data
-
-Never commit or intentionally pass passwords, API keys, OAuth credentials, private keys, bot tokens, session cookies, SSH keys, or equivalent secrets. Engineering Antigravity session credentials are not product runtime credentials.
-
-## Engineering style
-
-Prefer adapting mature OSS/upstream extension contracts over rebuilding infrastructure. Keep custom code narrow around Marketing OS domain logic and integrations.
+- Authority: current user → confirmed REG/ADR → owning docs → code/tests for implementation facts → official upstream facts → community signals.
+- Route every engineering task CHAT/MICRO/STANDARD/HEAVY.
+- Only Orchestrator delegates; max active subagents 2; workers never delegate.
+- STANDARD/HEAVY Builder uses isolated branch/worktree; human merges main.
+- Task Capsule before delegated mutation; structured deltas for handoff.
+- Builder initial implementation + 2 substantial repairs max. Reviewer-driven repairs 2 max.
+- Read-only agents do not repair.
+- All engineering roles: Gemini 3.8 Flash High + High effort; fail closed on downgrade.
+- Prefer deterministic code for collection/normalization/state and LLM reasoning for interpretation/language.
+- SearXNG = discovery; direct HTTP/API = cheapest authoritative acquisition when sufficient; Crawl4AI = default rich acquisition.
+- Search snippets are not authoritative evidence.
+- Clients Hunter = selective donor migration, never legacy runtime wrap.
+- No secrets/raw legacy credential artifacts in repository or model context.
+- Update durable docs/state when durable truth changes.

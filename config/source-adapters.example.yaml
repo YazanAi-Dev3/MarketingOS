@@ -1,0 +1,21 @@
+version: 1
+adapters:
+  generic:
+    enabled: true
+    promotion_policy: measured_value
+  mostaql:
+    enabled: false
+    status: requires_T_09_revalidation
+    legacy_seed: clients_hunter
+  khamsat:
+    enabled: false
+    status: requires_T_09_revalidation
+    legacy_seed: clients_hunter
+  bahr:
+    enabled: false
+    status: requires_T_09_revalidation
+    legacy_seed: clients_hunter
+promotion:
+  calibration_id: M-14
+  automatic_promotion: false
+  require_human_or_confirmed_decision: true

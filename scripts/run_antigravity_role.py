@@ -1,28 +1,24 @@
 #!/usr/bin/env python3
-"""Run a Marketing OS Antigravity role with the exact required model/effort.
-
-Fallback for cases where native custom-subagent effort inheritance cannot be
-proven. This is an engineering harness utility, not product runtime.
-"""
+"""Pinned fallback runner for project custom roles when native subagent effort inheritance is not proven."""
 from __future__ import annotations
-import argparse, json, subprocess, sys
-from pathlib import Path
+import argparse, subprocess, sys
 
-ALLOWED = {"orchestrator","explorer","builder","verifier","reviewer","heavy-reviewer"}
-MODEL = "gemini-3.8-flash-high"
-EFFORT = "high"
+ROLES = {"orchestrator", "explorer", "builder", "verifier", "reviewer", "heavy-reviewer"}
 
 def main() -> int:
-    ap=argparse.ArgumentParser()
-    ap.add_argument("--agent", required=True, choices=sorted(ALLOWED))
-    g=ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--prompt")
-    g.add_argument("--prompt-file")
-    ap.add_argument("--output-format", choices=["text","json","stream-json"], default="json")
-    ap.add_argument("--timeout", default="10m")
-    args=ap.parse_args()
-    prompt=args.prompt if args.prompt is not None else Path(args.prompt_file).read_text(encoding="utf-8")
-    cmd=["agy","-p",prompt,"--agent",args.agent,"--model",MODEL,"--effort",EFFORT,"--output-format",args.output_format,"--print-timeout",args.timeout]
-    proc=subprocess.run(cmd)
-    return proc.returncode
-if __name__ == "__main__": raise SystemExit(main())
+    ap = argparse.ArgumentParser()
+    ap.add_argument("role", choices=sorted(ROLES))
+    ap.add_argument("prompt")
+    ap.add_argument("--output-format", default="text", choices=["text", "json", "stream-json"])
+    args = ap.parse_args()
+    cmd = [
+        "agy", "--agent", args.role,
+        "--model", "gemini-3.8-flash-high",
+        "--effort", "high",
+        "--output-format", args.output_format,
+        "-p", args.prompt,
+    ]
+    return subprocess.call(cmd)
+
+if __name__ == "__main__":
+    raise SystemExit(main())

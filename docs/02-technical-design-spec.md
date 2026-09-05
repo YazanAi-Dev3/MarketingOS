@@ -1,6 +1,6 @@
 # Marketing OS — Technical Design Specification
 
-> Version 1.0 · 2026-09-03 · Documentation-ready · Implementation-facing specification
+> Version 2.0 · 2026-09-05 · Documentation-ready · Implementation-facing specification
 
 ## Contents
 
@@ -727,3 +727,19 @@ Telegram exposes a safe subset: status, digest, leads, inspect, generate draft, 
 - pending analysis jobs remain retryable.
 - if `T-05` approved and zero-spend fallback enabled, Gemini API may be used according to task routing.
 - otherwise Telegram reports degraded intelligence mode and waits for Antigravity recovery.
+
+## v2 acquisition contract — authoritative addendum
+
+This addendum supersedes any implementation inference that page acquisition should be hand-built around BeautifulSoup/Playwright. Under `A-037/A-042`, the pipeline is:
+
+```text
+Search Intent → Query Planner → SearXNG discovery → Acquisition Router
+  → direct public API/HTTP when sufficient
+  → otherwise Crawl4AI for rich crawling/rendering/extraction
+  → Source Adapter → normalized Evidence/provenance
+```
+
+A SearchResult is discovery metadata. Material Signal confidence cannot rely only on its snippet. `Evidence` must identify acquired/manual authoritative content and extraction method.
+
+Clients Hunter migration obeys `A-038/A-040`: useful behavior is cleanly reconstructed inside current ownership; legacy Firebase/Firecrawl/Streamlit/runtime schemas are not compatibility targets. Mostaql/Khamsat/Bahr adapters remain disabled until their individual `T-09` revalidation. Generic sources can be promoted to specialized adapters only after `M-14` evidence.
+

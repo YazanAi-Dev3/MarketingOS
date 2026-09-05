@@ -1,12 +1,9 @@
-# Hooks / Guard Plan — Antigravity
+# Hooks and Permissions Plan
 
-No blocking Antigravity hook is installed yet. The greenfield repository lacks stable product paths/commands sufficient for honest broad hook coverage.
+Antigravity hooks enforce what prompts should not be trusted to remember under long context.
 
-Installed deterministic static guards in `scripts/verify_control_plane.py`:
-1. product runtime provider policy remains Antigravity/Gemini API only;
-2. engineering manifest requires Gemini 3.8 Flash High/high for every role;
-3. `.codex/` adapter must be absent from this bundle;
-4. exact-model pinned role-runner must exist;
-5. no permanent deep-builder custom agent.
+- **PreToolUse:** deny credential file access/writes and unsafe raw Clients Hunter ingestion; force human confirmation for integrating/destructive Git and privileged filesystem commands.
+- **PostInvocation:** verify the observable model identity matches the required Gemini 3.8 Flash High policy. Effective reasoning effort remains an installed-runtime capability check because hooks expose `modelName`, not an independent effort field.
+- **Stop:** if background work is still active, continue once so the Orchestrator reconciles or terminates it; then allow stop to avoid a loop.
 
-Future hooks: secret scanner, runtime-provider import guard, public-action approval/idempotency checks, schema/migration safety after real code paths exist.
+The global permission example in `setup/antigravity-cli-settings.example.json` uses Deny for secret/Git paths, explicit Allow only for low-risk read-only commands, and leaves unconfigured commands/web/MCP at Antigravity's secure Ask defaults.

@@ -1,6 +1,6 @@
 # Marketing OS — Pre-implementation Preparation Plan
 
-> Version 1.0 · 2026-09-03 · Timebox: Phase 0 preparation + blocking spikes
+> Version 2.0 · 2026-09-05 · Phase 0 preparation + Antigravity capability gates + blocking runtime spikes
 
 ## 1. Governing principle
 
@@ -185,3 +185,18 @@ Before Phase 1 implementation:
 3. SearXNG + regional query benchmark: acquisition foundation.
 4. Telegram operator/approval flow: usable MVP surface.
 5. Lead intelligence on fixed fixtures before broad content/publishing.
+
+## v2 preimplementation delta
+
+### Engineering harness gate before product code
+Run `AG-CC-01..05` from `.agents/protocols/DRY-RUN.md`: agent discovery, Gemini 3.8 Flash High/High inheritance, native branch-worktree review visibility, hooks/permissions, and delegation-limit behavior. Use pinned role runner / explicit Git worktree fallback if native semantics are unproven.
+
+### Acquisition preparation
+After `T-08/T-01` and before specialized freelance-source code:
+- establish Crawl4AI as the primary rich acquisition dependency and define the acquisition router contract;
+- keep direct public API/HTTP as the cheaper route when sufficient;
+- run `T-02` for SearXNG regional discovery;
+- run `T-09` separately for Mostaql, Khamsat and Bahr before enabling each adapter;
+- create sanitized legacy regression fixtures that include known noisy Clients Hunter candidates;
+- never import raw legacy archive/database/credentials into the repo.
+

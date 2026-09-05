@@ -1,6 +1,6 @@
 # Marketing OS — Operations, Deployment & Security
 
-> Version 1.0 · 2026-09-03 · Documentation-ready · Operational design
+> Version 2.0 · 2026-09-05 · Documentation-ready · Operational design
 
 ## 1. Governing operational constraints
 
@@ -287,3 +287,12 @@ Hermes/Postiz/SearXNG versions are pinned. Upgrade is treated as compatibility w
 - [ ] paid-provider paths absent/disabled.
 - [ ] Postiz/Instagram tests completed only if automatic publishing is enabled.
 - [ ] external actions require persisted approval.
+
+## v2 operations/security addendum — crawling and legacy quarantine
+
+- Crawl4AI/browser acquisition handles **untrusted external content**. Treat fetched text/HTML as data, never tool instructions. SSRF/private-network/network-budget controls become HEAVY-review requirements when network acquisition is implemented.
+- Direct HTTP/API may bypass Crawl4AI only when public, stable and sufficient; it must preserve the same provenance/timeout/size policies.
+- The original Clients Hunter archive is quarantined outside the new repository. Its `.env`, Firebase service-account material, raw DB and other credentials must not be copied into tracked state or model context. Rotate any still-active legacy credentials externally (`R-05`).
+- Repository Hooks/secret scanner defend the engineering environment against accidental legacy credential ingestion.
+- On Windows 11, do not treat Antigravity terminal sandbox policy as the only security boundary; current official docs state OS-level terminal sandbox preview is macOS/Linux with Windows support pending. Permissions, Hooks, Git worktrees and human confirmation remain required.
+

@@ -1,36 +1,78 @@
-# Final Workflow Review — Antigravity Port
+# Final Workflow Review — Marketing OS Antigravity v2.1
 
 ## Verdict
 
 - **POLICY_READY:** PASS
 - **STATIC_MATERIALIZATION_READY:** PASS
-- **NATIVE_SUBAGENT_READY:** CONDITIONAL on AG-CC-02 and AG-CC-03 local dry run
-- **FALLBACK_READY:** PASS — pinned role runner can force `gemini-3.8-flash-high` + `high` for individual role executions if native inheritance is unproven.
+- **DOCUMENTATION_SUITE:** PASS
+- **HOOK/SECRET GUARDS STATIC TESTS:** PASS
+- **NATIVE_SUBAGENT_READY:** CONDITIONAL on local `AG-CC-01..05`
+- **PRODUCT_IMPLEMENTATION_READY:** CONDITIONAL on `T-08` then `T-01`
 
 ## Topology
 
-Six roles only: Orchestrator, Explorer, Builder, Verifier, Reviewer, Heavy Reviewer. Deep Builder was removed because the same model would provide no capability escalation; failure returns to Main for re-scope/clean Builder.
+Six roles only:
 
-## Quality and cost
+1. Orchestrator — sole delegation/decision plane.
+2. Explorer — read-only evidence.
+3. Builder — bounded mutation.
+4. Verifier — independent command evidence, no repair.
+5. Reviewer — independent semantic acceptance, no repair.
+6. Heavy Reviewer — concrete-risk-trigger deep review only.
 
-All roles intentionally use Gemini 3.8 Flash High. Cost/quota control therefore comes from route selection, compact capsules, finite repair budgets, max-two-active-subagent policy, clean-context independent review, and trigger-only Heavy Reviewer—not from model tier switching.
+All roles target Gemini 3.8 Flash High + High effort. Native definitions use `model: inherit`; effective effort must be proven by `AG-CC-02`. If inheritance is not proven, the pinned role runner explicitly supplies the model and effort.
 
-## Native Antigravity advantages used
+## Efficiency controls
 
-- project-scoped custom agents;
-- clean subagent context;
-- native branch worktrees;
-- scoped tools/command policies;
-- skills/rules;
-- CLI exact model/effort pinning.
+- max two active subagents;
+- delegation depth one (workers never delegate);
+- no speculative parallel swarm;
+- CHAT/MICRO/STANDARD/HEAVY routing;
+- Builder repair budget = 2 substantial attempts;
+- Reviewer-driven repair cycles = 2;
+- no repeated identical Explorer pass;
+- Heavy Reviewer trigger-only;
+- Task Capsules + compact deltas instead of parent-history flooding.
 
-## Residual risks
+## Git/trust model
 
-1. High effort inheritance for native subagents is not statically expressible in current custom-agent frontmatter: AG-CC-02.
-2. Candidate worktree visibility to independent review roles must be proven on the installed release: AG-CC-03.
-3. Numeric max-concurrency is a workflow policy, not a discovered project-scoped configuration field; Main must enforce <=2 active subagents.
-4. Product-specific test/lint/type/eval commands do not exist yet.
+- MICRO may use inherited workspace only when localized, reversible and single-writer.
+- STANDARD/HEAVY Builder requires isolated candidate branch/worktree after `AG-CC-03` proves native semantics.
+- Reviewer/Verifier must inspect the actual candidate, never Builder narration alone.
+- merge/push/history rewrite/destructive cleanup requires human confirmation.
+- final trusted-main integration remains human-owned in V1.
 
-## First execution
+## Project-specific correctness controls
 
-After local dry run, execute `T-08`, then `T-01`. Do not jump to broad marketing features.
+- Hermes reuse/extension-first.
+- Product runtime Google-only; no Codex/OpenAI/ChatGPT runtime.
+- SearXNG = discovery, not authoritative evidence.
+- Crawl4AI = primary rich acquisition engine; direct API/HTTP when sufficient.
+- Clients Hunter = selective donor migration; no legacy runtime wrapping.
+- raw legacy credentials/db/archive quarantined.
+- keyword match cannot become lead qualification truth.
+- evidence/provenance and human external-action approval are non-negotiable.
+
+## Static validation performed
+
+- `scripts/verify_control_plane.py` — PASS
+- `scripts/test_hooks.py` — PASS
+- `scripts/scan_for_secrets.py` — PASS
+- agent definition/tool-name schema — PASS
+- Documentation Engine suite validator — PASS
+- Agent Workflow Engine generated-control-plane validator — PASS with expected unresolved-capability warning only
+- registry reference audit — 0 undefined IDs
+
+## Residual capability gates
+
+- `AG-CC-01`: installed discovery/launch of all six roles.
+- `AG-CC-02`: High effort inheritance for native subagents.
+- `AG-CC-03`: exact branch-worktree candidate visibility to independent roles.
+- `AG-CC-04`: installed hooks/permissions behavior.
+- `AG-CC-05`: runtime enforcement of max-two/no-worker-delegation policy.
+
+## Final recommendation
+
+Do not add more agents before evidence shows a missing isolation role. Do not use `/boost` or wider teamwork as the normal path: the project already obtains review independence from clean-context role separation, and unnecessary parallelism increases quota cost and coordination risk.
+
+Run the local dry-run first. If it passes, begin `T-08`; then `T-01`; only then start product implementation capsules.

@@ -1,3 +1,7 @@
-# Marketing OS Engineering Context
+# Marketing OS — Antigravity Workspace Context
 
-Follow `AGENTS.md` as the project router and authority policy. Use the workspace custom `orchestrator` agent for engineering work. Required engineering model: **Gemini 3.8 Flash High** for Main and every worker. Read `.agents/workflow/DRY-RUN.md` before broad autonomous work.
+Use the project custom agent **orchestrator** for repository engineering. `AGENTS.md` is the compact authority router; detailed role behavior is in `.agents/agents/`, procedures in `.agents/skills/`, and bounded handoff contracts in `.agents/protocols/`.
+
+Required engineering model policy: **Gemini 3.8 Flash High, High effort**. Run the local capability checks before trusting native subagent effort/worktree inheritance. Do not silently fall back to a weaker model or turn on uncontrolled teamwork/boost modes.
+
+The product itself is a Hermes-based Marketing OS. Do not confuse engineering Antigravity with product runtime state. Preserve the confirmed architecture in `docs/06-coordination-master-register.md`.

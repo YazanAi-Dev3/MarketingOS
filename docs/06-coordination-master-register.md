@@ -1,6 +1,6 @@
 # Marketing OS — Coordination Master Register
 
-> Version 1.0 · 2026-09-03 · Single coordination source of truth
+> Version 2.0 · 2026-09-05 · Single coordination source of truth
 
 ## Identifier system
 
@@ -27,7 +27,9 @@
 | ROAD | `08-future-roadmap.md` | Deferred scope exists | Current | 1.0 |
 | REVIEW | `09-final-design-review.md` | Always, generated last | Current | 1.0 |
 | PREP | `10-preimplementation-plan.md` | Before implementation | Current | 1.0 |
-| AGENT | `11-ai-coding-agent-setup.md` | Antigravity used for engineering; Codex remains runtime-rejected | Current | 1.1 |
+| AGENT | `11-ai-coding-agent-setup.md` | Hardened Antigravity engineering control plane | Current | 2.0 |
+| ACQ | `13-source-acquisition-and-legacy-migration.md` | Acquisition + Clients Hunter migration | Current | 2.0 |
+| AG-ENV | `14-antigravity-engineering-environment.md` | Antigravity roles/rules/skills/hooks/permissions | Current | 2.0 |
 | PROVIDERS | `12-model-provider-guide.md` | External model/provider use | Current, volatile facts dated | 1.0 |
 | BM | — | Monetized tool economics | Omitted: tool is internal; startup GTM constraints live in CP/TS | — |
 | NFR | — | Separate contractual NFR artifact | Omitted: NFRs integrated into HLD/OPS/TS | — |
@@ -79,12 +81,19 @@
 | `A-027` | Source quality is multidimensional by task (discovery, buying signal, trend, contact, etc.), not one global score. | CONFIRMED | TS |
 | `A-028` | Content is generated from market evidence, service priorities and feedback, then adapted per platform. | CONFIRMED | TS |
 | `A-030` | Search blends known-source exploitation with controlled open discovery; ratio is calibrated rather than hard-coded as doctrine. | CONFIRMED | TS |
+| `A-037` | Crawl4AI is the primary rich web acquisition/rendering/extraction framework; direct public API/HTTP is preferred when cheaper and sufficient; BeautifulSoup/lxml are parser utilities only. | CONFIRMED | ACQ/HLD/TS |
+| `A-038` | Clients Hunter is a donor codebase for selective architectural migration + clean reimplementation, not a runtime dependency and not reference-only material. | CONFIRMED | ACQ/PREP |
+| `A-039` | Mostaql, Khamsat and Bahr are initial candidate specialized adapters, each gated by current-site revalidation `T-09`. | CONFIRMED | ACQ |
+| `A-040` | Only sanitized non-secret knowledge/regression fixtures may migrate from Clients Hunter; raw archive/database/.env/service-account credentials are quarantined. | CONFIRMED | ACQ/OPS |
+| `A-041` | Generic sources are promoted to specialized adapters only when measured recurring value justifies maintenance; no automatic promotion in V1. | CONFIRMED | ACQ |
+| `A-042` | SearXNG owns discovery/search; authoritative page evidence requires acquisition. Search snippets are not material-signal evidence. | CONFIRMED | ACQ/TS |
+| `A-043` | Engineering custom agents use Gemini 3.8 Flash High with High effort; only Orchestrator delegates, worker nesting is disabled and max active subagents is 2. | CONFIRMED | AGENT/AG-ENV |
 
 ### 1.4 Rejected decisions
 
 | ID | Decision | Status | Reason |
 |---|---|---|---|
-| `A-031` | Use Codex as marketing runtime/model provider. | REJECTED | Codex is reserved for building/maintenance and must not consume marketing runtime workload. |
+| `A-031` | Use Codex as marketing runtime/model provider. | REJECTED | Codex is outside the Marketing OS runtime; the active v2 engineering control plane is Antigravity-native. |
 | `A-032` | Rebuild an agent framework from scratch. | REJECTED | Hermes already provides gateway, sessions, skills, plugins, tools and scheduling. |
 | `A-033` | Maintain a fixed URL list as the primary source strategy. | REJECTED | Becomes stale and cannot adapt by geography/intent. |
 | `A-034` | Let the agent “search the web” without source/geography/search-intent controls. | REJECTED | Low precision, poor reproducibility, wasted quota. |
@@ -124,7 +133,8 @@
 | `M-07` | Autonomy promotion gates | Measure approval/rewrite/rejection/error rates per action type | External action remains approval-required until founders explicitly promote it based on evidence | Post-MVP | OPEN |
 | `M-08` | Crawl/job budgets | Benchmark fetch latency, failures, quota and VPS load | Jobs finish predictably without starving interactive Telegram/agent work | Phase 1/OPS | OPEN |
 | `M-09` | Retention/storage | Measure daily raw/processed growth; classify rebuildable vs authoritative data | Retention fits VPS with backup headroom; no source-of-truth data silently evicted | Phase 1/OPS | OPEN |
-| `M-10` | Antigravity model/effort routing | Evaluate quality, latency and subscription quota use on representative tasks | Use the cheapest/fastest model class that meets task-specific evaluation gates | Phase 2 | OPEN |
+| `M-10` | Product-runtime Antigravity/Gemini routing (not engineering-agent model selection) | Evaluate product task quality/latency/quota after `T-01`; engineering roles remain fixed by `A-043` | Product runtime may optimize only after quality gates; engineering control plane remains Gemini 3.8 Flash High/High | Phase 2+ | OPEN |
+| `M-14` | Generic-source → specialized-adapter promotion threshold | Track recurring useful yield, generic extraction failure/cost, structure stability and strategic country/service importance | Adapter is added only when measured benefit exceeds its maintenance cost and founders/confirmed policy approve | Phase 1–5 | OPEN |
 | `M-11` | Country/sector query lexicons | Evaluate multilingual queries against manually judged relevant results | Each active country/sector has a query set that consistently returns usable local sources/signals | Phase 1–2 | OPEN |
 | `M-12` | Business KPI baselines | Track weekly funnel events from first real runs | Baseline exists before optimization; optimize for qualified conversations/wins, not views alone | Phase 5 | OPEN |
 | `M-13` | Backup/RPO/RTO | Run restore drill and measure recovery duration/data loss window | Practical target selected from measured restore; documented before production reliance | OPS before routine operation | OPEN |
@@ -141,6 +151,7 @@
 | `T-06` | Can the current VPS run the selected stack safely? | ≤ half day | Deploy representative containers/processes; measure RAM/CPU/disk/IO under crawl + agent + Postiz activity | Single-VPS topology | Before Phase 4 co-location; earlier if VPS is small | OPEN — BLOCKING FOR FINAL TOPOLOGY |
 | `T-07` | Are Instagram/Meta account/app permissions ready for automation? | ≤ 2 hours after access | Validate professional account, app credentials, scopes and callback requirements | Postiz Instagram integration | Before Phase 4 | OPEN |
 | `T-08` | Which Hermes release should be pinned and are required extension points stable? | ≤ 2 hours | Install candidate stable release; run plugin/skill/gateway smoke tests | Reproducible implementation baseline | Before first implementation branch | OPEN |
+| `T-09` | What are the current public search/list/detail/pagination/JS behaviors of Mostaql, Khamsat and Bahr? | ≤ 2 hours per adapter | Revalidate each current public site, determine direct HTTP vs Crawl4AI, stable fields/selectors and bounded smoke path | Specialized source adapters | Before each corresponding adapter | OPEN — BLOCKING PER ADAPTER |
 
 ## 5. Review findings
 
@@ -150,6 +161,7 @@
 | `R-02` | HIGH | “Hermes + Antigravity” could be stated as if already natively integrated. | Converted integration fact into blocking `T-01`; current docs distinguish official Antigravity headless capability from unproven Hermes adapter. | CLOSED |
 | `R-03` | NORMAL | Zero-cost constraint could conflict with Gemini API fallback. | `A-020` states no paid usage; `T-05` must verify a zero-spend fallback or leave it disabled. | CLOSED |
 | `R-04` | NORMAL | Postiz was previously treated as guaranteed publishing infrastructure despite version/account variability. | Made real-account smoke test `T-03` a publishing-phase blocker and retained manual/direct fallback paths. | CLOSED |
+| `R-05` | HIGH | Clients Hunter archive contains credential-bearing legacy files and noisy/partially migrated runtime logic; blind migration risks secret exposure and architecture regression. | Raw legacy artifacts quarantined; selective migration policy `A-038/A-040`, hooks/secret scanner, current-site adapter revalidation and sanitized regression fixtures required. | CLOSED / controls active |
 
 ## 6. Sessions/milestones / design rounds
 
@@ -160,6 +172,8 @@
 5. Data/interaction/publishing decisions confirmed.
 6. Runtime-provider correction: Antigravity/Google only; Codex explicitly excluded from marketer runtime.
 7. Documentation suite generated and cross-audited.
+8. Clients Hunter reviewed; Crawl4AI acquisition architecture and selective migration decisions `A-037..A-042` confirmed.
+9. Antigravity engineering control plane hardened: detailed roles, focused Skills/Rules, Hooks/Permissions, one-level delegation and `A-043` model/effort policy.
 
 ## 7. Ongoing rules
 
@@ -169,7 +183,9 @@
 - Every important model conclusion links to evidence IDs.
 - Country and service priorities are configuration, not code constants.
 - Agent recommendations may suggest configuration changes but cannot self-approve them.
-- Codex can modify the repository; Codex cannot be configured as the marketer's runtime reasoning provider.
+- Engineering harness is Antigravity. Codex remains prohibited as the marketer's runtime reasoning provider.
+- Clients Hunter is donor-only; raw legacy secrets/data stay quarantined.
+- SearXNG discovery and Crawl4AI/direct acquisition remain separate responsibilities.
 
 ## 8. Current readiness
 
@@ -184,6 +200,7 @@
 2. Run `T-01` before implementing marketing intelligence around a presumed provider contract.
 3. Run `T-02`, then build country profiles/source registry around the verified search behavior.
 4. Complete `M-03` by entering founder-chosen country weights.
+5. For legacy freelance platforms, run `T-09` before each specialized adapter and use sanitized legacy data only as regression evidence.
 
 ### Must-not-defer items
 - Secret/context scrubber before any broad-context model invocation.

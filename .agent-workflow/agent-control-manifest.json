@@ -1,24 +1,23 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "2.0",
   "project": {
     "name": "Marketing OS",
-    "repository_mode": "GREENFIELD",
-    "control_plane": "Antigravity native workspace agents"
+    "repository_mode": "GREENFIELD_WITH_LEGACY_DONOR",
+    "control_plane": "Antigravity native workspace agents",
+    "legacy_donor": "Clients Hunter selective migration only"
   },
   "platform": {
     "name": "antigravity",
+    "documented_version_checked": "Antigravity 2.0 v2.12.2 / CLI v1.1.25 on 2026-09-05",
     "engineering_model": "gemini-3.8-flash-high",
     "engineering_effort": "high",
     "custom_agents_root": ".agents/agents",
     "skills_root": ".agents/skills",
     "rules_root": ".agents/rules",
-    "native_workspace_modes": [
-      "inherit",
-      "branch",
-      "share"
-    ],
+    "hooks_file": ".agents/hooks.json",
     "max_active_subagents_policy": 2,
-    "native_effort_inheritance": "REQUIRES_AG_CC_02",
+    "worker_delegation_depth": 0,
+    "native_effort_inheritance": "VERIFIED_LOCALLY",
     "fallback_role_runner": "scripts/run_antigravity_role.py"
   },
   "authority": {
@@ -29,22 +28,24 @@
       "docs/04-operations-deployment-security.md",
       "docs/10-preimplementation-plan.md",
       "docs/11-ai-coding-agent-setup.md",
-      "docs/12-model-provider-guide.md",
+      "docs/13-source-acquisition-and-legacy-migration.md",
+      "docs/14-antigravity-engineering-environment.md",
       "agent_docs/STATE.md",
       "repository code/config/tests for implementation facts"
     ],
-    "precedence": "product decisions: accepted REG/ADR > HLD/TS/OPS; engineering execution-control: manifest + agent_docs/DECISIONS; progress: STATE; code/config/tests: implementation facts; worker/chat evidence transient",
+    "precedence": "current user instruction > accepted REG/ADR > owning design docs > STATE for progress > code/config/tests for implementation facts > official upstream facts > community signals",
     "current_state_owner": "agent_docs/STATE.md",
-    "decision_owner": "orchestrator for engineering workflow; founders for product/architecture/risk acceptance and final merge"
+    "decision_owner": "orchestrator for engineering routing; founders for product/architecture/risk acceptance and final merge"
   },
   "trust": {
     "builder_trusted": false,
     "integration_mode": "CANDIDATE_REVIEW",
     "trusted_branch": "main",
     "final_integration_owner": "human founders",
-    "micro_direct_write": "eligible only when localized/reversible/low-risk/single-writer",
-    "standard_heavy": "builder workspace=branch required",
-    "engineering_runtime_separation": "Antigravity engineering session credentials/state must not be reused as product runtime state"
+    "micro_direct_write": "only localized/reversible/low-risk/single-writer",
+    "standard_heavy": "builder workspace=branch required after AG-CC-03",
+    "engineering_runtime_separation": "engineering Antigravity state/credentials are not product runtime state",
+    "legacy_quarantine": "raw Clients Hunter archive/db/env/credentials prohibited from tracked project state"
   },
   "roles": [
     {
@@ -53,10 +54,10 @@
       "model": "gemini-3.8-flash-high",
       "reasoning": "high",
       "frontmatter_model": "inherit",
-      "permissions": "decision-plane; bounded durable-state write + delegation",
-      "isolation_reason": "long-lived decision plane",
-      "input_contract": "user goal + authority + compact deltas",
-      "output_contract": "classification, Task Capsules, decisions, synthesis, state transitions"
+      "permissions": "decision plane; bounded documentation/state mutation; sole delegation authority",
+      "isolation_reason": "long-lived decision context and routing",
+      "input_contract": "user goal + authority + compact evidence deltas",
+      "output_contract": "route, Task Capsules, decisions, synthesis, durable state"
     },
     {
       "name": "explorer",
@@ -64,8 +65,8 @@
       "model": "gemini-3.8-flash-high",
       "reasoning": "high",
       "frontmatter_model": "inherit",
-      "permissions": "read-only",
-      "isolation_reason": "read-heavy evidence context",
+      "permissions": "read-only repository/upstream evidence",
+      "isolation_reason": "clean evidence context",
       "input_contract": "one precise evidence question",
       "output_contract": "PLANNING BRIEF"
     },
@@ -75,9 +76,9 @@
       "model": "gemini-3.8-flash-high",
       "reasoning": "high",
       "frontmatter_model": "inherit",
-      "permissions": "workspace-write within capsule/candidate worktree",
-      "edit_boundary": "TASK CAPSULE; workspace=branch for STANDARD/HEAVY",
-      "isolation_reason": "mutation/debug operational context",
+      "permissions": "workspace-write within capsule candidate",
+      "edit_boundary": "Task Capsule; branch worktree for STANDARD/HEAVY",
+      "isolation_reason": "mutation/debug context",
       "input_contract": "TASK CAPSULE",
       "output_contract": "KNOWLEDGE DELTA"
     },
@@ -88,8 +89,8 @@
       "reasoning": "high",
       "frontmatter_model": "inherit",
       "permissions": "read/execute only; never repair",
-      "isolation_reason": "independent named-gate execution",
-      "input_contract": "named gates + candidate identity",
+      "isolation_reason": "independent command evidence",
+      "input_contract": "named gate + candidate identity",
       "output_contract": "VERIFICATION DELTA"
     },
     {
@@ -98,9 +99,9 @@
       "model": "gemini-3.8-flash-high",
       "reasoning": "high",
       "frontmatter_model": "inherit",
-      "permissions": "read-only",
-      "isolation_reason": "independent semantic/correctness gate",
-      "input_contract": "capsule + actual candidate + authority + verification evidence",
+      "permissions": "read-only semantic review",
+      "isolation_reason": "independent acceptance context",
+      "input_contract": "capsule + actual candidate + authority + verification",
       "output_contract": "REVIEW DELTA"
     },
     {
@@ -109,187 +110,98 @@
       "model": "gemini-3.8-flash-high",
       "reasoning": "high",
       "frontmatter_model": "inherit",
-      "permissions": "read-only",
-      "isolation_reason": "trigger-scoped deep risk gate",
-      "input_contract": "exact trigger + capsule + candidate + evidence",
+      "permissions": "read-only trigger-scoped deep risk review",
+      "isolation_reason": "exceptional risk context",
+      "input_contract": "specific heavy trigger + actual candidate + evidence",
       "output_contract": "HEAVY REVIEW DELTA"
     }
   ],
   "routes": [
     {
       "name": "CHAT",
-      "entry_conditions": [
-        "no repository mutation",
-        "no broad evidence gathering"
-      ],
-      "sequence": [
-        "orchestrator",
-        "optional explorer",
-        "orchestrator"
-      ],
-      "parallelism": "none unless one independent read-only fact",
-      "verification": "none unless repository fact requires evidence",
-      "review": "none",
-      "exit": "answer/decision"
+      "entry_conditions": ["no repository mutation", "answerable from bounded evidence"],
+      "sequence": ["orchestrator", "optional explorer", "orchestrator"],
+      "exit": "answer or decision"
     },
     {
       "name": "MICRO",
-      "entry_conditions": [
-        "localized obvious edit",
-        "low risk/reversible",
-        "clear acceptance",
-        "no architecture/public-contract/schema/security/provider/external-action impact"
-      ],
-      "sequence": [
-        "orchestrator",
-        "builder",
-        "orchestrator"
-      ],
-      "parallelism": "single writer",
-      "verification": "builder focused check",
-      "review": "conditional reviewer",
-      "workspace": "inherit allowed only when eligible; otherwise branch",
-      "exit": "verified localized change"
+      "entry_conditions": ["localized reversible edit", "no heavy trigger", "clear acceptance and edit surface"],
+      "sequence": ["orchestrator", "builder", "orchestrator"],
+      "workspace": "inherit only when explicitly eligible",
+      "exit": "focused checks pass"
     },
     {
       "name": "STANDARD",
-      "entry_conditions": [
-        "default meaningful engineering change",
-        "bounded behavior change without initial heavy trigger"
-      ],
-      "sequence": [
-        "optional explorer",
-        "orchestrator",
-        "builder",
-        "conditional verifier",
-        "reviewer",
-        "orchestrator"
-      ],
-      "parallelism": "read-only parallelism only; max active subagents policy 2",
-      "verification": "builder focused + verifier when independent/environment gate matters",
-      "review": "independent reviewer",
+      "entry_conditions": ["default meaningful bounded engineering change"],
+      "sequence": ["optional explorer", "orchestrator", "builder", "conditional verifier", "reviewer", "orchestrator"],
       "workspace": "builder=branch",
-      "exit": "review PASS + human integration decision + state update"
+      "exit": "review PASS and human integration decision"
     },
     {
       "name": "HEAVY",
-      "entry_conditions": [
-        "high blast radius/hard rollback",
-        "one or more risk triggers"
-      ],
-      "sequence": [
-        "explorer",
-        "orchestrator",
-        "builder",
-        "conditional verifier",
-        "reviewer",
-        "heavy-reviewer",
-        "orchestrator"
-      ],
-      "parallelism": "phased; no moving-candidate review",
-      "verification": "phase-specific gates",
-      "review": "baseline reviewer then trigger-scoped heavy reviewer",
+      "entry_conditions": ["one or more concrete risk triggers"],
+      "sequence": ["explorer", "orchestrator", "builder", "conditional verifier", "reviewer", "heavy-reviewer", "orchestrator"],
       "workspace": "builder=branch",
-      "exit": "blocking findings closed/accepted + checkpoint + human merge"
+      "exit": "risk findings closed/accepted and human integration decision"
     }
-  ],
-  "contracts": [
-    "PLANNING BRIEF",
-    "TASK CAPSULE",
-    "KNOWLEDGE DELTA",
-    "VERIFICATION DELTA",
-    "REVIEW DELTA",
-    "HEAVY REVIEW DELTA"
   ],
   "verification": {
     "builder_default": true,
     "gates": [
-      {
-        "name": "control-plane-static",
-        "command": "python scripts/verify_control_plane.py",
-        "status": "VERIFIABLE_NOW"
-      },
-      {
-        "name": "native-antigravity-smoke",
-        "command": ".agents/workflow/DRY-RUN.md",
-        "status": "REQUIRED_LOCAL"
-      },
-      {
-        "name": "product-verify",
-        "command": "./scripts/verify.sh",
-        "status": "NOT_YET_IMPLEMENTED"
-      }
+      {"name": "control-plane-static", "command": "python scripts/verify_control_plane.py", "status": "VERIFIABLE_NOW"},
+      {"name": "hook-self-tests", "command": "python scripts/test_hooks.py", "status": "VERIFIABLE_NOW"},
+      {"name": "native-antigravity-smoke", "command": ".agents/protocols/DRY-RUN.md", "status": "REQUIRED_LOCAL"},
+      {"name": "product-verify", "command": "project-defined during implementation", "status": "NOT_YET_IMPLEMENTED"}
     ],
-    "review_evidence_doctrine": "tests passed is evidence, not proof"
+    "review_evidence_doctrine": "tests passed are evidence, not semantic proof"
   },
   "repair_budgets": {
     "builder_debug_attempts": 2,
     "reviewer_repair_cycles": 2,
     "repeat_same_exploration": 0
   },
-  "risk_triggers": [
-    "auth/access control/secrets/credentials/founder allowlists",
-    "command execution/SSRF/prompt-tool injection/MCP-tool permissions",
-    "Antigravity/Gemini runtime provider or secret-redaction boundary",
-    "public publishing/outreach approval/idempotency/replay/duplicate side effects",
-    "destructive migration/backup-restore/SQLite integrity",
-    "production VPS/deployment/security topology",
-    "concurrency/distributed state",
-    "high-blast-radius architecture or Hermes core boundary change"
-  ],
   "guards": [
     {
-      "name": "google-only-product-runtime-provider-policy",
+      "name": "google-only-product-runtime",
       "source_invariant": "A-019/A-031",
-      "mechanical_predicate": "config/runtime-providers.json preferred/fallback are antigravity/gemini_api; paid usage false; codex/openai/chatgpt forbidden",
+      "mechanical_predicate": "runtime provider config permits Antigravity/Gemini only and explicitly forbids Codex/OpenAI/ChatGPT",
       "blocking": true,
-      "self_tests": [
-        "scripts/verify_control_plane.py positive provider fixture",
-        "scripts/verify_control_plane.py negative provider fixture"
-      ]
+      "self_tests": ["scripts/verify_control_plane.py provider positive/negative checks"]
     },
     {
-      "name": "engineering-model-pin",
-      "source_invariant": "WF-AG-002/WF-AG-003",
-      "mechanical_predicate": "manifest roles all gemini-3.8-flash-high/high; custom agents model=inherit; fallback role runner pins exact model/effort; AG-CC-02 required before native mode",
+      "name": "engineering-model-policy",
+      "source_invariant": "Engineering environment v2 model policy",
+      "mechanical_predicate": "all role manifests target gemini-3.8-flash-high/high; PostInvocation guard rejects observed non-target model identity; AG-CC-02 gates effective effort",
       "blocking": true,
-      "self_tests": [
-        "static validator",
-        "AG-CC-01",
-        "AG-CC-02"
-      ]
+      "self_tests": ["scripts/test_hooks.py", "AG-CC-02"]
+    },
+    {
+      "name": "secret-and-legacy-quarantine",
+      "source_invariant": "A-040/R-05",
+      "mechanical_predicate": "PreToolUse hook denies direct secret-file access/writes and raw legacy asset ingestion; secret scanner rejects tracked secret material",
+      "blocking": true,
+      "self_tests": ["scripts/test_hooks.py", "scripts/scan_for_secrets.py"]
+    },
+    {
+      "name": "human-integration-boundary",
+      "source_invariant": "workflow trust policy",
+      "mechanical_predicate": "PreToolUse guard force-asks merge/push/history rewrite/worktree deletion/destructive cleanup commands",
+      "blocking": true,
+      "self_tests": ["scripts/test_hooks.py destructive git case"]
     }
   ],
   "durable_state": [
-    {
-      "path": "agent_docs/PROJECT.md",
-      "owner": "orchestrator"
-    },
-    {
-      "path": "agent_docs/CONVENTIONS.md",
-      "owner": "orchestrator"
-    },
-    {
-      "path": "agent_docs/DECISIONS.md",
-      "owner": "orchestrator"
-    },
-    {
-      "path": "agent_docs/STATE.md",
-      "owner": "orchestrator"
-    }
+    {"path": "agent_docs/PROJECT.md", "owner": "orchestrator"},
+    {"path": "agent_docs/CONVENTIONS.md", "owner": "orchestrator"},
+    {"path": "agent_docs/DECISIONS.md", "owner": "orchestrator"},
+    {"path": "agent_docs/STATE.md", "owner": "orchestrator"}
   ],
   "unresolved": [
     {
-      "id": "AG-CC-02",
-      "question": "Do native custom subagents inherit Gemini 3.8 Flash High effort exactly from the pinned Main on the installed release?",
-      "blocking_for": "native subagent mode",
-      "fallback": "pinned role runner"
-    },
-    {
-      "id": "AG-CC-03",
-      "question": "Can independent Reviewer/Verifier inspect the actual native branch-worktree candidate reliably?",
-      "blocking_for": "native candidate review path",
-      "fallback": "actual diff + changed-file snapshot review packet"
+      "id": "T-09",
+      "question": "What are the current public listing/detail/search/pagination/JS behaviors of Mostaql, Khamsat and Bahr?",
+      "blocking_for": "each corresponding specialized adapter",
+      "fallback": "generic discovery/acquisition until revalidated"
     }
   ]
 }

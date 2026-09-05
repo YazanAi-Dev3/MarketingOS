@@ -1,6 +1,6 @@
 # Marketing OS — Model Provider Guide
 
-> Version 1.0 · 2026-09-03 · Runtime policy: Google-only · External facts verified 2026-09-03
+> Version 2.0 · 2026-09-05 · Runtime policy: Google-only · External facts reverified 2026-09-05
 
 ## 1. Current external constraints
 
@@ -28,7 +28,7 @@ The startup already pays for Google AI Pro/Antigravity, quotas are intended to b
 
 ### Relevant verified CLI capabilities
 
-As of 2026-09-03, official Antigravity headless documentation shows:
+As reverified on 2026-09-05, official Antigravity headless documentation shows:
 - `agy -p` non-interactive runs;
 - cached authentication for headless use;
 - JSON and streaming JSON output;
@@ -157,9 +157,14 @@ evidence validation result
 2. **Measure the exact account/path you deploy; do not infer API economics from a consumer subscription.**
 3. **Provider/model changes cannot weaken domain evidence, approval or secret boundaries.**
 
-## Verified external references — 2026-09-03
+## Verified external references — rechecked 2026-09-05
 
 - Google Antigravity Headless mode: `https://antigravity.google/docs/cli/headless/`
 - Google Antigravity CLI installation/auth and Gemini API-key mode: `https://antigravity.google/docs/cli/install/`
 - Hermes Plugin system: `https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins`
 - Hermes Model Provider Plugins: `https://hermes-agent.nousresearch.com/docs/developer-guide/model-provider-plugin`
+
+## Engineering-harness note (2026-09-05)
+
+The Antigravity engineering control plane now fixes all custom engineering roles to Gemini 3.8 Flash High + High effort (`A-043`). This does **not** change the product-runtime provider investigation `T-01/T-05`; engineering credentials/session state remain separate from the Hermes runtime provider implementation.
+

@@ -1,0 +1,427 @@
+{
+  "package": "marketing-os-antigravity-complete-v2.1",
+  "generated": "2026-09-05",
+  "file_count": 84,
+  "files": [
+    {
+      "path": ".agent-workflow/agent-control-manifest.json",
+      "size": 9450,
+      "sha256": "35f853630cc17e6afc8fdfca965eceec62ce6d2059bc0759982a1381c8d54459"
+    },
+    {
+      "path": ".agent-workflow/antigravity-official-capability-matrix.md",
+      "size": 1495,
+      "sha256": "421bd12124244629860ea80ecdf138cfedeedf01f02cb969c26323759e447023"
+    },
+    {
+      "path": ".agent-workflow/capability-checks.md",
+      "size": 1007,
+      "sha256": "9aae098694a5f07f4969b569d507b7a5dab6f4cb00ff55f449dc161de9ac30fc"
+    },
+    {
+      "path": ".agent-workflow/community-observations.md",
+      "size": 1404,
+      "sha256": "84ad459b70f3f74f8d86a14ffef8d6c47d3737674a5e5ec615cf283e5ee8c6f3"
+    },
+    {
+      "path": ".agent-workflow/documentation-delta.md",
+      "size": 935,
+      "sha256": "f3b54718c274fd7c1f9d2c5f92e1c7a8567da01674f86b84af54352d7d83dbcb"
+    },
+    {
+      "path": ".agent-workflow/final-workflow-review.md",
+      "size": 3479,
+      "sha256": "90ab5584bd90218f2187a9b812d7fe962398c4078f896e3152dbf61ddb8918f8"
+    },
+    {
+      "path": ".agent-workflow/hooks-plan.md",
+      "size": 949,
+      "sha256": "c95c7706784e7e19d2d65f13c0e3e8b40a1faf3fd1ce55a956cecc6bb720f9b3"
+    },
+    {
+      "path": ".agent-workflow/research-sources.md",
+      "size": 2159,
+      "sha256": "420009d5307f489b0d518c9d1be36fa210ef8d875931db9909e1e157368849b5"
+    },
+    {
+      "path": ".agents/agents/builder/agent.md",
+      "size": 7380,
+      "sha256": "c70a1cf665862d50450f2f5b784ff474fa7c721b5bd965c7c8cfee9883878c06"
+    },
+    {
+      "path": ".agents/agents/explorer/agent.md",
+      "size": 3690,
+      "sha256": "147f53787cee54f5ca040dec42ea06f2865b45cca61a6cf0169558bca4af9d49"
+    },
+    {
+      "path": ".agents/agents/heavy-reviewer/agent.md",
+      "size": 3423,
+      "sha256": "1e4bc1160b4c26a9f64c9309bab14cd9bd6ac5279bb2255de23f491748203838"
+    },
+    {
+      "path": ".agents/agents/orchestrator/agent.md",
+      "size": 13080,
+      "sha256": "75541296da53b91d60c6ecff6a26ba615d9084a5bdf5a9beaeb7cb963ecceb7c"
+    },
+    {
+      "path": ".agents/agents/reviewer/agent.md",
+      "size": 3786,
+      "sha256": "962334609cd12dffb2d9ef01aa35b3413c8f67fe14712700cb98e9bdd60e98c9"
+    },
+    {
+      "path": ".agents/agents/verifier/agent.md",
+      "size": 2234,
+      "sha256": "41d03a91c0f3fe231041aa8800a059c1d1fd3fbc25b3ea653cc57a653425b5eb"
+    },
+    {
+      "path": ".agents/hooks.json",
+      "size": 740,
+      "sha256": "740c278208782a4119188885e1923cab1bbe2ae51a7b327e645ae175f61567f4"
+    },
+    {
+      "path": ".agents/protocols/CONTRACTS.md",
+      "size": 1621,
+      "sha256": "f325203ade1b85f98e6f815d0583ec6cbf1fe97d99a9cfcbb2c36b0d030baf54"
+    },
+    {
+      "path": ".agents/protocols/DRY-RUN.md",
+      "size": 1973,
+      "sha256": "6e0eb6a6aa816837ada9879ad0ecf81eefe05862280a99a9c5d68bd96dd8930a"
+    },
+    {
+      "path": ".agents/protocols/FAILURE-RECOVERY.md",
+      "size": 1131,
+      "sha256": "159dbc68274477d192c0687a4e382c337c055fa1c604668ee0bd757425f6572f"
+    },
+    {
+      "path": ".agents/protocols/ROUTING.md",
+      "size": 1515,
+      "sha256": "30575a7cff6aa7ba6bf98cea63f1901b46ce7df7190510b9b1fd9975d1375efa"
+    },
+    {
+      "path": ".agents/protocols/SESSION-START.md",
+      "size": 593,
+      "sha256": "757a8db557523cf99fee517e883f03bec704d9d066e3d54e3eb49ebd5b7779e3"
+    },
+    {
+      "path": ".agents/protocols/TASK-CAPSULE.md",
+      "size": 760,
+      "sha256": "f1cd26d417a3da96aef1bf6084441778732f8fb957842c35b7355bbbe660bd7a"
+    },
+    {
+      "path": ".agents/protocols/WORKTREES.md",
+      "size": 744,
+      "sha256": "06be30298f340b3cc3aba67033717648f003e1a08847e916c875876388ef206b"
+    },
+    {
+      "path": ".agents/rules/00-operating-contract.md",
+      "size": 1324,
+      "sha256": "17ff82666482305481ac8ad0ecd2d5c7b5eca59d261e1c7729d495f15e21daa7"
+    },
+    {
+      "path": ".agents/rules/10-git-trust-and-scope.md",
+      "size": 1133,
+      "sha256": "c1b246ad605094809b892e6d5bd097dfd2cf4b97e3ab4c2d1929de832cf2bd30"
+    },
+    {
+      "path": ".agents/rules/20-security-runtime-boundaries.md",
+      "size": 1628,
+      "sha256": "595174ec36d61faa7c7b389726ad331e358274680dd4eca3b354f3ebdf47060d"
+    },
+    {
+      "path": ".agents/scripts/hook_model_guard.py",
+      "size": 1639,
+      "sha256": "4e5af4a7bfeed18726917cac4264b1de1316941b61474edd97c98bf02a438540"
+    },
+    {
+      "path": ".agents/scripts/hook_pretool_guard.py",
+      "size": 3494,
+      "sha256": "498c7295c5f13b9a029ce10d68be693d255b62bd827f42b4dededc7df1f22975"
+    },
+    {
+      "path": ".agents/scripts/hook_stop_guard.py",
+      "size": 842,
+      "sha256": "d25bc23e998418adb4227393627499e6ea527916bf473e9dd3268464dddab70f"
+    },
+    {
+      "path": ".agents/skills/build-execution/SKILL.md",
+      "size": 1402,
+      "sha256": "f0123027af9ba640c02cf29324781cacffe770dab874bbdfa8d0529d360ae9b0"
+    },
+    {
+      "path": ".agents/skills/clients-hunter-migration/SKILL.md",
+      "size": 1917,
+      "sha256": "202483a4018ba79293ca260bb2b8fd3ffb6e782c79a9788a2aeacdda603a3e31"
+    },
+    {
+      "path": ".agents/skills/documentation-sync/SKILL.md",
+      "size": 867,
+      "sha256": "da0d438b46b83ae95503989e008f39835c6a2d475ddac1ecde840213f63e9893"
+    },
+    {
+      "path": ".agents/skills/heavy-risk-review/SKILL.md",
+      "size": 1132,
+      "sha256": "4c5f1f2cadc38eaca90df36640315ff40632e0e9caf5b1f77e1cfb2b153a5227"
+    },
+    {
+      "path": ".agents/skills/independent-review/SKILL.md",
+      "size": 899,
+      "sha256": "d45da2b8e18cfb7effe138461eef52d50099b250892e0c2529a38afcefda1050"
+    },
+    {
+      "path": ".agents/skills/source-acquisition/SKILL.md",
+      "size": 2011,
+      "sha256": "4001344b863bde42a88c2025538f17cceae07f11d6fc94eeadc2b072e0ed6bde"
+    },
+    {
+      "path": ".agents/skills/task-capsule/SKILL.md",
+      "size": 1990,
+      "sha256": "deebc2074ebb94fcf5bece780f7fd9ab291cba9cb54b68d75eb56ceda5bfcf94"
+    },
+    {
+      "path": ".agents/skills/verification-gate/SKILL.md",
+      "size": 933,
+      "sha256": "afa2c1c9774f83eec6245ab529482a0b9610baa4890def6d845ca9f566f2ac5f"
+    },
+    {
+      "path": ".agents/skills/worktree-protocol/SKILL.md",
+      "size": 951,
+      "sha256": "71ff6ae269d9ec94a01cd5b1019cdb670d721fad2dc3953e2d38caeb082ac9b5"
+    },
+    {
+      "path": ".doc-engine/audit-report-v2.json",
+      "size": 1114,
+      "sha256": "eb3acd68b3b3779b2c6b3f507ce602120ab31f045f91d377f5b61cf267392c0d"
+    },
+    {
+      "path": ".doc-engine/generation-plan.json",
+      "size": 1925,
+      "sha256": "31df809b8b830f72c70e1afcaed1da66283a512777fb3ca614df859850717cf3"
+    },
+    {
+      "path": ".doc-engine/knowledge-ledger.md",
+      "size": 9620,
+      "sha256": "09c3bd30ebacfeb75feb3a708f3e7818562c0619b3394730ef13ad6493a0dceb"
+    },
+    {
+      "path": ".gitignore",
+      "size": 590,
+      "sha256": "35b777125033c91915201ad5758767af570c1c848ce45b0fc99ae80a5f044e35"
+    },
+    {
+      "path": "AGENTS.md",
+      "size": 1943,
+      "sha256": "e5a77294662b8b8f2f6d6c3dbeac1da2260dd526951968a9c88abf194ac54e72"
+    },
+    {
+      "path": "GEMINI.md",
+      "size": 765,
+      "sha256": "917f621d4b73d320dd75b165f98f4b7d40a4c75b3a003d6152ec9c711a02e880"
+    },
+    {
+      "path": "README.md",
+      "size": 1480,
+      "sha256": "02480c1ee1ecd2db8b2605db3cfee047f3c4458026668f75d6b2b1486c5e1355"
+    },
+    {
+      "path": "README_AR.md",
+      "size": 5027,
+      "sha256": "783db2a8d58d388f957e1dac95b0c3823cfcdff8c4a373b8e3df0c96b19511ba"
+    },
+    {
+      "path": "agent_docs/CONVENTIONS.md",
+      "size": 1166,
+      "sha256": "dcf6a2a9eff3cdab7ff6273ea2e3c9a542d77d594cc524f794e668d44227e051"
+    },
+    {
+      "path": "agent_docs/DECISIONS.md",
+      "size": 1051,
+      "sha256": "50d535cbc731d16a6e7bf59ec64f051829fb7720ab7268cece578da80f401c61"
+    },
+    {
+      "path": "agent_docs/PROJECT.md",
+      "size": 1090,
+      "sha256": "eeee7ad27592d2c89769a3ba4bc895092542f16ea48b92bd03b1fe85b53c3c66"
+    },
+    {
+      "path": "agent_docs/STATE.md",
+      "size": 882,
+      "sha256": "59b4becf6323dcea901e00475cf3c8ea6cd329e1a9b71a1471caf24bb55d472f"
+    },
+    {
+      "path": "config/acquisition-policy.example.yaml",
+      "size": 576,
+      "sha256": "6673e617ecd31ac6da88fbe5e9f2dc25f8ebf16306d5024e8f0ddb17c7b2c10a"
+    },
+    {
+      "path": "config/country-priorities.example.yaml",
+      "size": 943,
+      "sha256": "35c19fb9df70230a10db57f48cc86a1d234850e565a1954d713ba091e8087174"
+    },
+    {
+      "path": "config/runtime-providers.json",
+      "size": 449,
+      "sha256": "83c134f0040258918c5322135d85261bb0fd9daab57fa7ece318e25dce61f4c2"
+    },
+    {
+      "path": "config/service-priorities.example.yaml",
+      "size": 636,
+      "sha256": "906582a46082173ca3f0c719c4fe549b064cadafcfce1881884969a20750743c"
+    },
+    {
+      "path": "config/source-adapters.example.yaml",
+      "size": 494,
+      "sha256": "1dc06f78cac2290bf83f0589ff78cb2fbc13c92f8927ecbe33288d483c1bf72f"
+    },
+    {
+      "path": "config/source-taxonomy.example.yaml",
+      "size": 821,
+      "sha256": "f2d23d21429adcdb6e940456f51145d14a4e20a731c9a89f0204ca1a60f20733"
+    },
+    {
+      "path": "docs/00-document-index.md",
+      "size": 7977,
+      "sha256": "93ccf9fd105b2b11a3033cba32ad7dd9036d3ef77d292d90a2cc5ffc6f3d69f6"
+    },
+    {
+      "path": "docs/01-project-checkpoint.md",
+      "size": 18709,
+      "sha256": "6b046f06d65c0628bc449fe534ff7ebb2057c19fd8a5100582381859926d4640"
+    },
+    {
+      "path": "docs/02-technical-design-spec.md",
+      "size": 23077,
+      "sha256": "fb7f1d8643c3e36d160eb7cf513b9318889de2f083ba9ec63caf9a8ea45e0b44"
+    },
+    {
+      "path": "docs/04-operations-deployment-security.md",
+      "size": 14367,
+      "sha256": "cbe5aa13d572e04c122382dd6c5950e94b723eeca2b236072b48fb008a45a1da"
+    },
+    {
+      "path": "docs/05-documentation-workflow-guide.md",
+      "size": 7016,
+      "sha256": "a26088169ce8b87f7361c9504ec9f19e564485b498f24318a5c2a617869e55a1"
+    },
+    {
+      "path": "docs/06-coordination-master-register.md",
+      "size": 21779,
+      "sha256": "c225b3cf4bde2d62122b13a81dd0bb44e36de00424fc0e63c7c4170e0b351c33"
+    },
+    {
+      "path": "docs/07-high-level-design.md",
+      "size": 13860,
+      "sha256": "05764fea330433287b7223eb44b5b43e56c22614ab5f3d3b0c2e794952f333e3"
+    },
+    {
+      "path": "docs/08-future-roadmap.md",
+      "size": 5521,
+      "sha256": "7e1bd1493ec34158a33b1480f8a7113702fa76d493382304e4ef6c99b3b22127"
+    },
+    {
+      "path": "docs/09-final-design-review.md",
+      "size": 13827,
+      "sha256": "0fdcc28d6ae9f9e67128c8030ea7319d090a5f213cd8ec02eebf2930bd41aca7"
+    },
+    {
+      "path": "docs/10-preimplementation-plan.md",
+      "size": 8697,
+      "sha256": "e2b23f50aff42498087f7865213db253a4f6343ee43dbb41e040bad67e9b1cc2"
+    },
+    {
+      "path": "docs/11-ai-coding-agent-setup.md",
+      "size": 8620,
+      "sha256": "f62306d6d7682cfaa3096c66a92e992db55958044a819958c59d23fbcd1e8d0c"
+    },
+    {
+      "path": "docs/12-model-provider-guide.md",
+      "size": 7263,
+      "sha256": "471bc42052f0d1609bee5e91a7bcc32314e1d9797bfe6ac2b7e123d8d77e7598"
+    },
+    {
+      "path": "docs/13-source-acquisition-and-legacy-migration.md",
+      "size": 8972,
+      "sha256": "1108725227add29c0239e98dd2aab3acda8a6db357d41bf7f633497dacacbaeb"
+    },
+    {
+      "path": "docs/14-antigravity-engineering-environment.md",
+      "size": 9187,
+      "sha256": "2350af20db62f5ee3effea8f54558f3a70d4dc3b26c0fb914de5ca84260656c7"
+    },
+    {
+      "path": "legacy/clients-hunter/MIGRATION-INVENTORY.md",
+      "size": 1218,
+      "sha256": "401f4a05f3725cf0a1b5982bd76123a90f82ed0048b237e7208aaf1dbdd443b6"
+    },
+    {
+      "path": "legacy/clients-hunter/README.md",
+      "size": 438,
+      "sha256": "97fea92c7da5c67fe8a715db164806117a64d24e94cc64528ca0203f772778c8"
+    },
+    {
+      "path": "legacy/clients-hunter/SECURITY-NOTE.md",
+      "size": 462,
+      "sha256": "05efc760488fbcdd738d9760eef62fb094301e786d976a52717813b30ec3fbb9"
+    },
+    {
+      "path": "legacy/clients-hunter/SOURCE-ADAPTER-SEEDS.md",
+      "size": 661,
+      "sha256": "18ac6e75f659c7cbb103214dec74d76ba8641e5bb5066c3784665cb2171bbe1a"
+    },
+    {
+      "path": "scripts/run_antigravity_role.ps1",
+      "size": 389,
+      "sha256": "cb22fe141c1e0d39694975988d2bdd7f0cae59d25928438b6250cc9fe1e228a7"
+    },
+    {
+      "path": "scripts/run_antigravity_role.py",
+      "size": 840,
+      "sha256": "1caf675038a9c59954a7780c7ba171786f0ed958338b82bf27a8e04f80667c21"
+    },
+    {
+      "path": "scripts/scan_for_secrets.py",
+      "size": 1710,
+      "sha256": "aa5f71e3fb412d1c41d350f071df4e5399b68fb96debcf2b141ad0142cff04c2"
+    },
+    {
+      "path": "scripts/test_hooks.py",
+      "size": 2030,
+      "sha256": "42f8fd1330ac74d28b215e2d2d090a95c0b58a62a85026a5d45dc8bc21b6e27d"
+    },
+    {
+      "path": "scripts/validate_agent_definitions.py",
+      "size": 3768,
+      "sha256": "07971abaa976528a8d3f0c6ee8c9c1e951b384b7eaa71990e99bb61814e67d47"
+    },
+    {
+      "path": "scripts/validate_generated_control_plane.py",
+      "size": 6457,
+      "sha256": "b6c6f7404abc4e61ffa8b5431c1def4f3ca1ab78a84d7cc471fd6a655834d2de"
+    },
+    {
+      "path": "scripts/verify_control_plane.py",
+      "size": 2652,
+      "sha256": "93662a58b05679eed7a097c34eab96aa79dcb14f2c06991ddc9fd9c834fb030b"
+    },
+    {
+      "path": "setup/antigravity-cli-settings.example.json",
+      "size": 518,
+      "sha256": "34abd4dafa8fa853fee90610165e38598f05f3a7ce4ff2b2254ee13748d86ef4"
+    },
+    {
+      "path": "setup/antigravity-ide-settings-checklist.md",
+      "size": 1219,
+      "sha256": "b1a4f562a4221466460dccf147cbb81311623c9e3f59c8785db07a72ff2e1e1c"
+    },
+    {
+      "path": "setup/first-run-checklist.md",
+      "size": 802,
+      "sha256": "dcdf0fb39dc097a1df88290cee3e56a2f2d2a1043d6149495a36ba2d55c344bd"
+    },
+    {
+      "path": "setup/windows-hook-troubleshooting.md",
+      "size": 1522,
+      "sha256": "8918152ad8d25b177b9de385345c33d995452b04c66cad2d7fd13c12ac6ab456"
+    }
+  ]
+}

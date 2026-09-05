@@ -1,6 +1,6 @@
 # Marketing OS — Project Checkpoint
 
-> Version 1.0 · 2026-09-03 · Documentation-ready / not yet implementation-ready
+> Version 2.0 · 2026-09-05 · Documentation-ready / implementation gated by local Antigravity + runtime spikes
 
 ## Document set and source-of-truth relationships
 
@@ -214,7 +214,7 @@ Outcome → logged → future scoring/content feedback
 
 ## 11. Model/vendor/cost policy
 
-Existing paid resources: VPS, Google AI Pro/Antigravity, Codex for engineering. `A-020` rejects new incremental software/API spend until superseded. Therefore:
+Existing paid resources include VPS, Google AI Pro/Antigravity and Codex; the active v2 engineering harness uses Antigravity, while Codex is not a product-runtime dependency. `A-020` rejects new incremental software/API spend until superseded. Therefore:
 
 - self-host OSS where practical;
 - Antigravity subscription/runtime first;
@@ -311,7 +311,7 @@ Exit: decisions can be tuned from real outcomes rather than initial assumptions.
 
 - One repository for customization/config/docs unless Hermes deployment layout requires a separate vendor clone/submodule.
 - Pin Hermes/Postiz/SearXNG versions; upgrades are explicit changes with smoke tests.
-- Codex can implement and review code but never becomes a runtime provider.
+- Antigravity custom engineering agents implement and review code under the v2 control plane. Codex is outside this active harness and never becomes a runtime provider.
 - Every schema migration is versioned and backed up before apply.
 - Release tags begin after first runnable end-to-end slice, not after documentation only.
 
@@ -359,3 +359,10 @@ Exact country weights, scoring thresholds, search engine mix, content cadence, b
 ### Must not be deferred during implementation
 
 Evidence lineage, public-source boundary, approval enforcement, Codex runtime prohibition, zero-cost circuit breaker, idempotent storage/state transitions.
+
+## v2 checkpoint — acquisition and engineering harness (2026-09-05)
+
+After reviewing Clients Hunter, the project does **not** wrap or incrementally operate the legacy application. Useful source-adapter, shallow→deep, dedup and retry behavior is selectively migrated into the new architecture; Firecrawl/Firebase/Streamlit and keyword-as-relevance logic are not inherited. Crawl4AI is the primary rich acquisition engine, with SearXNG discovery kept separate from page evidence. See `A-037..A-043`, `T-09`, `M-14`, `R-05` and documents 13/14.
+
+The engineering harness is now Antigravity-native and hardened around six detailed custom roles, one-level delegation, max two active subagents, Task Capsules, branch worktrees, independent review, Hooks/Permissions and fixed Gemini 3.8 Flash High/High model policy.
+

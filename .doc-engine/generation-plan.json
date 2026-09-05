@@ -1,0 +1,83 @@
+{
+  "project": "Marketing OS",
+  "version": "2.0",
+  "date": "2026-09-05",
+  "profiles": [
+    "general_software",
+    "internal_tool",
+    "ai_ml_product",
+    "data_pipeline"
+  ],
+  "selected_documents": [
+    {
+      "id": "IDX",
+      "filename": "00-document-index.md"
+    },
+    {
+      "id": "CP",
+      "filename": "01-project-checkpoint.md"
+    },
+    {
+      "id": "TS",
+      "filename": "02-technical-design-spec.md"
+    },
+    {
+      "id": "OPS",
+      "filename": "04-operations-deployment-security.md"
+    },
+    {
+      "id": "DOC",
+      "filename": "05-documentation-workflow-guide.md"
+    },
+    {
+      "id": "REG",
+      "filename": "06-coordination-master-register.md"
+    },
+    {
+      "id": "HLD",
+      "filename": "07-high-level-design.md"
+    },
+    {
+      "id": "ROAD",
+      "filename": "08-future-roadmap.md"
+    },
+    {
+      "id": "REVIEW",
+      "filename": "09-final-design-review.md"
+    },
+    {
+      "id": "PREP",
+      "filename": "10-preimplementation-plan.md"
+    },
+    {
+      "id": "AGENT",
+      "filename": "11-ai-coding-agent-setup.md"
+    },
+    {
+      "id": "PROVIDERS",
+      "filename": "12-model-provider-guide.md"
+    },
+    {
+      "id": "ACQ",
+      "filename": "13-source-acquisition-and-legacy-migration.md"
+    },
+    {
+      "id": "AG-ENV",
+      "filename": "14-antigravity-engineering-environment.md"
+    }
+  ],
+  "omitted_documents": [
+    {
+      "id": "BM",
+      "reason": "The system is an internal acquisition/marketing tool; monetization mechanics belong to the startup, not to the tool itself. Relevant go-to-market constraints are integrated into CP/TS."
+    },
+    {
+      "id": "NFR",
+      "reason": "NFRs are integrated into OPS/HLD/TS; no contractual need for a separate artifact."
+    },
+    {
+      "id": "ADR",
+      "reason": "No implementation has started; ADRs are created when implementation begins or an ADR trigger is met."
+    }
+  ]
+}

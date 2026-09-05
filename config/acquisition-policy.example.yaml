@@ -1,0 +1,21 @@
+version: 1
+policy:
+  discovery_backend: searxng
+  authoritative_evidence_requires_page_acquisition: true
+  default_rich_acquisition: crawl4ai
+  prefer_direct_http_or_public_api_when_sufficient: true
+  parser_utilities:
+    - beautifulsoup
+    - lxml
+  automated_access:
+    public_only: true
+    bypass_authentication: false
+    bypass_captcha: false
+    bypass_platform_protection: false
+  deterministic_extraction_preferred: true
+  llm_extraction: conditional
+  untrusted_content: true
+  legacy_runtime_dependencies_forbidden:
+    - firecrawl
+    - firebase
+    - streamlit

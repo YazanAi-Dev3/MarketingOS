@@ -1,10 +1,10 @@
 # Marketing OS — Document Index
 
-> Version 1.0 · 2026-09-03 · Documentation-ready / not yet implementation-ready
+> Version 2.0 · 2026-09-05 · Documentation-ready / Antigravity control-plane ready for local capability smoke
 
 ## 1. Project in one paragraph
 
-Marketing OS هو وكيل تسويق ومبيعات داخلي لشركة ناشئة تقنية صغيرة، مبني بتخصيص **Hermes Agent** بدلاً من إنشاء agent runtime جديد. يدعم السعودية والإمارات وقطر وسوريا والبحرين وعُمان والأردن ولبنان وتركيا، ويفصل مساري B2B والخدمات الأكاديمية التقنية. V1 يجمع Market Radar + Content Engine + Conversation Intake، ويعتمد Dynamic Regional Source Intelligence عبر SearXNG وSource Registry، مع Evidence/Provenance إلزامي. التشغيل اليومي عبر CLI وTelegram، والنشر عبر Postiz بعد التحقق. Reasoning التشغيلي Google-only: Antigravity أولاً وGemini API fallback؛ Codex للبناء والصيانة فقط. قيد الميزانية الحاكم هو عدم إضافة تكلفة تشغيلية جديدة دون قرار صريح.
+Marketing OS هو وكيل تسويق ومبيعات داخلي لشركة ناشئة تقنية صغيرة، مبني بتخصيص **Hermes Agent** بدلاً من إنشاء agent runtime جديد. يدعم السعودية والإمارات وقطر وسوريا والبحرين وعُمان والأردن ولبنان وتركيا، ويفصل مساري B2B والخدمات الأكاديمية التقنية. V1 يجمع Market Radar + Content Engine + Conversation Intake، ويعتمد Dynamic Regional Source Intelligence عبر SearXNG وSource Registry، مع **Crawl4AI كمحرك acquisition غني أساسي** وEvidence/Provenance إلزامي. Clients Hunter أصبح donor codebase لSelective Migration وليس runtime legacy. التشغيل اليومي عبر CLI وTelegram، والنشر عبر Postiz بعد التحقق. Reasoning التشغيلي Google-only: Antigravity أولاً وGemini API fallback. بيئة البناء الحالية Antigravity-native؛ Codex ليس جزءاً من هذا control plane ويظل محظوراً من runtime. قيد الميزانية الحاكم هو عدم إضافة تكلفة تشغيلية جديدة دون قرار صريح.
 
 ## 2. Selected document suite
 
@@ -22,6 +22,8 @@ Marketing OS هو وكيل تسويق ومبيعات داخلي لشركة نا�
 | PREP | `10-preimplementation-plan.md` | ماذا نفعل قبل الكود؟ | Current | uncertainty-first kickoff |
 | AGENT | `11-ai-coding-agent-setup.md` | كيف يستخدم Antigravity للبناء بأمان؟ | Current | Antigravity engineering harness; Codex runtime rejected |
 | PROVIDERS | `12-model-provider-guide.md` | كيف يعمل Antigravity/Gemini؟ | Current; dated | volatile provider facts |
+| ACQ | `13-source-acquisition-and-legacy-migration.md` | كيف نكتشف/نجلب المصادر وماذا نرث من Clients Hunter؟ | **Current / Governing addendum** | acquisition architecture |
+| AG-ENV | `14-antigravity-engineering-environment.md` | كيف تهيأ بيئة الوكلاء بقوة؟ | **Current / Governing engineering setup** | harness reliability |
 | BM | — | monetization of this tool | Omitted | tool internal, not sold |
 | NFR | — | separate NFR artifact | Omitted | integrated into TS/HLD/OPS |
 | ADR | `docs/adr/` | implementation-era durable decisions | Not yet | no trigger before implementation |
@@ -32,7 +34,8 @@ Marketing OS هو وكيل تسويق ومبيعات داخلي لشركة نا�
 |---|---|---|
 | Founder reviewing product | IDX → CP → REG → ROAD | scope/why/decisions/future |
 | Engineer starting implementation | IDX → REG → PREP → HLD → TS → OPS | current truth then implementation |
-| Antigravity/coding agent | AGENT → REG → owning doc | build rules and current decisions |
+| Antigravity/coding agent | AG-ENV → AGENT → REG → owning doc | hardened harness, build rules and current decisions |
+| Source acquisition work | ACQ → REG → TS/HLD | Crawl4AI/direct acquisition + legacy migration contract |
 | Runtime/provider work | PROVIDERS → PREP T-01/T-05 → HLD/TS | volatile facts + contract |
 | Search/source work | TS → config examples → HLD | source intelligence details |
 | Publishing work | TS approvals → OPS → T-03/T-07 | external action safety |
@@ -47,6 +50,10 @@ Marketing OS هو وكيل تسويق ومبيعات داخلي لشركة نا�
 - `A-020`: zero incremental cost unless superseded.
 - `A-007`: external public actions require human approval initially.
 - `A-031`: **Codex runtime is rejected.**
+- `A-037`: Crawl4AI primary rich acquisition; direct HTTP/API when sufficient.
+- `A-038`: Clients Hunter selective migration, not runtime dependency.
+- `A-042`: SearXNG discovery is not authoritative evidence acquisition.
+- `A-043`: all engineering roles Gemini 3.8 Flash High/High; one-level delegation, max 2 workers.
 - `I-01`/HLD: product provider allowlist must not contain Codex.
 - `I-02`: publishing/sending cannot occur without persisted approval.
 - `I-04`: agent may recommend but cannot mutate country weights.
@@ -70,10 +77,12 @@ Nine countries and three service-priority classes are confirmed product scope, n
 
 ### Before implementation
 
-1. `T-08`: pin Hermes and extension interfaces.
-2. `T-01`: prove Hermes ↔ Antigravity path without Codex.
-3. If T-01 cannot support required runtime semantics, `T-05`: verify Gemini API fallback under cost/provider constraints.
-4. Establish secret/config guards.
+1. Run Antigravity local capability dry run `AG-CC-01..05`.
+2. `T-08`: pin Hermes and extension interfaces.
+3. `T-01`: prove Hermes ↔ Antigravity path without Codex.
+4. If T-01 cannot support required runtime semantics, `T-05`: verify Gemini API fallback under cost/provider constraints.
+5. Establish/retain secret/config guards.
+6. Run `T-09` before each Mostaql/Khamsat/Bahr specialized adapter.
 
 ### Before Regional Source Intelligence exit
 
@@ -118,3 +127,4 @@ Nine countries and three service-priority classes are confirmed product scope, n
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-09-03 | First documentation-ready design snapshot after user decision rounds; Google-only runtime and Codex runtime rejection incorporated. |
+| 2.0 | 2026-09-05 | Crawl4AI acquisition + Clients Hunter selective migration; hardened Antigravity six-role control plane with Rules/Skills/Hooks/Permissions and local capability gates. |

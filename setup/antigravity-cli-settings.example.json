@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "command(git status)",
+      "command(git diff)",
+      "command(git log)",
+      "command(git show)",
+      "command(git branch --show-current)",
+      "command(python scripts/verify_control_plane.py)",
+      "command(python scripts/test_hooks.py)",
+      "command(python scripts/scan_for_secrets.py)"
+    ],
+    "deny": [
+      "read_file(.env)",
+      "write_file(.env)",
+      "write_file(.git/)",
+      "command(rm -rf)",
+      "command(sudo)"
+    ],
+    "ask": []
+  }
+}

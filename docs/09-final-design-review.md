@@ -1,189 +1,318 @@
 # Marketing OS — Final Design Review
 
-> Version 1.0 · 2026-09-03 · Audit scope: documentation snapshot v1.0 · Generated after cross-document audit
+> Version 2.0 · 2026-09-05 · Audit scope: complete documentation + Antigravity engineering control plane + Clients Hunter migration decisions · Generated last
 
-## 1. Audit scope and cumulative result
-
-تمت مراجعة حزمة التصميم الخاصة بـMarketing OS باعتبارها **تصميماً قبل التنفيذ** لوكيل تسويق داخلي مبني على Hermes، وليس مراجعة لكود إنتاج غير موجود بعد.
-
-شمل التدقيق:
-- تطابق scope بين CP/TS/HLD/OPS/ROAD/PREP؛
-- تطابق مصدر الحقيقة والـdata ownership؛
-- عدم تسرب Codex إلى runtime بعد قرار الرفض؛
-- اتساق Antigravity/Gemini provider policy؛
-- اتساق source intelligence والسياسات الجغرافية؛
-- external-action approval boundaries؛
-- IDs (`A/M/T/D/R`) والإحالات بينها؛
-- حالة الوثائق المختارة/المستبعدة؛
-- الفصل بين documentation-ready وimplementation-ready.
-
-**النتيجة التراكمية:** الحزمة Documentation-ready. لا توجد فجوة user-owned مفتوحة. التنفيذ غير جاهز بالكامل حتى إغلاق التحقيقات blocking المناسبة، وعلى رأسها `T-08` و`T-01`.
-
-## 2. Material issues found in this audit
-
-### R-01 · Codex could leak into product runtime
-
-**Detected:** نسخة تصميم سابقة حاولت استخدام Codex/ChatGPT OAuth كحل سهل لتشغيل Hermes، وهو يخالف قرار المؤسس بأن Codex مخصص للبناء فقط.
-
-**Why it matters:** يربط workload التسويقي بحصة أداة البناء ويخالف ownership المقصود للstack.
-
-**Repair:** تثبيت `A-019` Google-only runtime، وإضافة `A-031` كرفض صريح لـCodex runtime؛ تحديث CP/TS/HLD/OPS/AGENT/PROVIDERS/PREP.
-
-**Propagation verified:** البحث النصي لا يجد Codex كـcurrent provider/fallback؛ كل ذكر runtime له هو نفي/guard/rejected decision.
-
-**Status:** CLOSED.
-
-### R-02 · Hermes + Antigravity was at risk of being documented as already integrated
-
-**Detected:** وجود `agy` headless لا يثبت تلقائياً أن Antigravity يحقق Hermes model-provider semantics.
-
-**Why it matters:** لو وثق كحقيقة، قد يبدأ التنفيذ فوق contract غير موجود.
-
-**Repair:** تحويله إلى `T-01` blocking investigation، مع مسارين extension-first: model-provider plugin أو general tool/skill adapter. لا تعديل Hermes core بدون ADR.
-
-**Propagation verified:** PROVIDERS/PREP/HLD/TS جميعها تذكر التكامل كمسار مطلوب إثباته، لا كقدرة جاهزة.
-
-**Status:** CLOSED.
-
-### R-03 · Gemini API fallback could contradict zero-cost policy
-
-**Detected:** قبول Gemini API كـfallback لا يعني أن Google AI Pro يضمن API usage مجانية/مشمولة.
-
-**Why it matters:** قد ينشأ spend غير مقصود رغم `A-020`.
-
-**Repair:** `T-05` يتحقق من المسار والحصة/الكلفة الفعلية؛ fallback disabled إذا لم يحقق zero-incremental-cost. لا paid auto-fallback.
-
-**Propagation verified:** CP/TS/OPS/PREP/PROVIDERS/HLD متفقة.
-
-**Status:** CLOSED.
-
-### R-04 · Postiz was at risk of becoming a hard MVP dependency
-
-**Detected:** المنتج مفتوح المصدر ومناسب، لكن self-hosting والحسابات/OAuth وInstagram behavior تتغير حسب النسخة والحساب.
-
-**Why it matters:** قد يتوقف MVP كله على publishing stack أثقل من Market Radar.
-
-**Repair:** Postiz preferred publishing layer فقط بعد `T-03`,`T-06`,`T-07`; manual publish/direct Telegram يبقي V1 قابلاً للاستخدام.
-
-**Propagation verified:** HLD/OPS/PREP/ROAD متفقة.
-
-**Status:** CLOSED.
-
-## 3. Automated/structural checks actually run
-
-| Check | Command/method | Result |
-|---|---|---|
-| Skill suite validator — pre-review | `validate_suite.py docs --state .doc-engine/generation-plan.json` | Only expected failure: REVIEW not yet generated |
-| Registry reference audit | regex scan of all docs against REG definitions | 76 referenced identifiers, 0 undefined |
-| Selected-document audit | generation plan vs files | only REVIEW missing before final generation |
-| Internal markdown reference audit | filename scan | only REVIEW references missing before final generation |
-| Codex runtime audit | grep for Codex provider/runtime/fallback patterns | no positive/current Codex runtime path; occurrences are explicit rejection/guards |
-| T-02 semantic audit | grep + manual inspection | T-02 consistently means SearXNG regional benchmark |
-| Architecture ownership review | manual CP/TS/HLD/OPS comparison | Hermes state ≠ marketing DB; authority consistent |
-| Scope/deferred review | manual CP/HLD/ROAD/PREP comparison | deferred items do not appear as V1 requirements except as phase-gated substitutes |
-
-A final validator run is executed after this file is written; its result is recorded in `.doc-engine/audit-report.json` and package README.
-
-## 4. Remaining calibrations / investigations / deferred items
-
-### Investigations
-
-- `T-08` — pin Hermes release/interfaces. **Before first implementation branch.**
-- `T-01` — prove Hermes ↔ Antigravity runtime path. **Key runtime blocker.**
-- `T-02` — benchmark SearXNG regional/localized discovery. **Before scheduled regional scans.**
-- `T-05` — conditional Gemini API fallback if T-01 is insufficient.
-- `T-06` — current VPS capacity for selected co-located stack.
-- `T-03`,`T-07` — Postiz/Instagram publishing, blocking Phase 4 only.
-- `T-04` — optional WhatsApp integration, not V1 blocker.
-
-### Calibrations
-
-`M-01` through `M-13` remain intentionally open where values must be measured rather than invented. The most immediate are:
-- `M-03` country weights;
-- `M-11` query lexicons;
-- `M-08` crawl/timeouts;
-- `M-01` lead scoring after founder-labeled fixtures.
-
-### Deferred
-
-`D-01` through `D-15` have explicit trigger/substitute definitions in ROAD/REG. None must be implemented to claim V1 design completion.
-
-## 5. Design state
-
-### Complete enough now
-
-- product identity/scope;
-- dual funnels;
-- service/geographic policy;
-- dynamic source architecture;
-- data model/authority;
-- evidence/provenance model;
-- human approval/autonomy boundary;
-- Hermes reuse-first strategy;
-- CLI/Telegram operator surfaces;
-- Google-only runtime policy;
-- zero-cost circuit breaker;
-- phased publishing/WhatsApp behavior.
-
-### Design at its phase
-
-- country numeric weights;
-- source/lead thresholds;
-- exact query engine/lexicon mix;
-- crawl/resource budgets;
-- model/effort routing;
-- content cadence;
-- backup RPO/RTO;
-- social publishing credentials/version.
-
-These are correctly represented as `M-##` or `T-##`, not fake constants.
-
-### Before first production code
-
-Strict minimum:
-1. close `T-08`;
-2. run `T-01` before coding against a provider assumption;
-3. establish secret/model-payload guard and provider allowlist;
-4. define clean migration/test DB baseline.
-
-Phase 1 additionally needs `T-02` before broad scheduled search.
-
-### Must not be deferred inside implementation
-
-- `A-031` runtime provider prohibition;
-- evidence lineage;
-- secret redaction;
-- public-source access boundary;
-- approval + idempotency;
-- authoritative marketing store separation;
-- paid usage circuit breaker.
-
-## 6. Repeated failure/consistency patterns
-
-1. **Convenient integration ≠ approved architecture.** Existing subscriptions can tempt the design toward a provider that violates workload ownership.
-2. **Document external capability as investigation until the exact deployed contract is proven.**
-3. **Do not turn optional OSS components into MVP blockers.**
-4. **Keep model/provider uncertainty outside domain contracts.** Evidence, approvals and data schemas remain stable whichever Google path wins.
-5. **Avoid false numeric precision.** Country/search/lead/content thresholds are measurements.
-
-## 7. Verdict
+## 1. Verdict
 
 ### Documentation-ready: **YES**
 
-Evidence:
-- user-owned product/authority decisions are closed;
-- selected docs are substantive and derived from one frozen ledger;
-- unknowns are classified as investigation/calibration/deferral;
-- rejected decisions are explicit;
-- no unresolved contradiction is known;
-- cross-document IDs/ownership/scope are consistent.
+The v2 package is internally coherent enough to govern implementation. Product scope, data ownership, source-acquisition architecture, legacy migration policy, provider constraints, engineering-agent topology, trust boundaries, review gates, and operating constraints are explicit.
 
-### Implementation-ready: **NO**
+### Static control-plane ready: **YES**
 
-Primary blockers:
-- `T-08` Hermes pin/extension smoke;
-- `T-01` Antigravity integration contract;
-- phase-specific investigations before their features are relied upon (`T-02`, later `T-03/T-06/T-07`);
-- `M-03` must be set before production regional scheduling.
+The materialized Antigravity workspace configuration passes the package validators, hook self-tests, secret/quarantine scan, agent-schema/tool-name audit, and the Project Agent Workflow Engine validator.
 
-The design is intentionally ready to guide implementation **without pretending that external integration facts have already been proven**.
+### Native Antigravity delegated execution ready: **CONDITIONAL**
+
+It still requires the user's installed Antigravity release to close `AG-CC-01..05`, especially:
+
+- `AG-CC-02`: prove effective **Gemini 3.8 Flash High / High effort** inheritance for native subagents;
+- `AG-CC-03`: prove Reviewer/Verifier can inspect the exact candidate created with native `workspace=branch` semantics.
+
+These are capability checks, not missing design decisions. The package includes fail-closed fallbacks: pinned `agy` role execution and explicit Git worktrees.
+
+### Product implementation-ready: **NO — intentionally gated**
+
+Before implementation relies on product-runtime assumptions, close `T-08` and `T-01`. Specialized Mostaql/Khamsat/Bahr adapters also require `T-09` revalidation.
+
+---
+
+## 2. Scope audited
+
+The audit covered:
+
+1. `docs/` design suite and the canonical Coordination Master Register;
+2. `.agents/agents/` six-role Antigravity team;
+3. `.agents/rules/`, `.agents/skills/`, `.agents/hooks.json`, protocols, permissions/setup guidance;
+4. `agent_docs/` durable state contract;
+5. runtime-provider policy and zero-incremental-cost boundary;
+6. acquisition stack (`SearXNG → Acquisition Router → direct HTTP/API or Crawl4AI → Source Adapter → Evidence`);
+7. Clients Hunter selective migration/quarantine policy;
+8. Git/worktree trust boundaries and final human integration ownership;
+9. cross-document `A/M/T/D/R` references;
+10. static validation and hook negative/positive tests.
+
+---
+
+## 3. Governing v2 architecture confirmed
+
+### 3.1 Engineering control plane
+
+The active engineering harness is **Google Antigravity**, not Codex.
+
+Roles:
+
+```text
+Orchestrator
+  ├─ Explorer           (optional, read-only)
+  ├─ Builder            (single bounded mutation worker)
+  ├─ Verifier           (conditional independent execution evidence)
+  ├─ Reviewer           (independent semantic acceptance)
+  └─ Heavy Reviewer     (trigger-only deep risk gate)
+```
+
+All roles target **Gemini 3.8 Flash High + High effort** (`A-043`). Only Orchestrator owns delegation. Worker nesting is prohibited and max active subagents is two.
+
+There is intentionally no permanent Deep Builder: with one engineering model, a second role name does not create real capability escalation. After two substantial Builder repair attempts, Orchestrator must re-scope, acquire missing evidence, or start a clean bounded Builder session.
+
+### 3.2 Product runtime
+
+Product reasoning remains Google-only:
+
+- Antigravity preferred;
+- Gemini API conditional fallback;
+- Codex/OpenAI/ChatGPT prohibited as Marketing OS runtime providers (`A-019`, `A-031`).
+
+Engineering Antigravity credentials/state are not automatically product-runtime credentials/state. `T-01` must prove the Hermes↔Antigravity runtime contract rather than inferring it from the existence of `agy`.
+
+### 3.3 Source acquisition
+
+The v2 acquisition architecture is:
+
+```text
+Country + Service Priority + Search Intent
+                 ↓
+             Query Planner
+                 ↓
+               SearXNG
+                 ↓
+       Candidate URL / Source
+                 ↓
+          Acquisition Router
+          ├─ direct public API/HTTP
+          └─ Crawl4AI
+                 ↓
+      Generic / Specialized Adapter
+                 ↓
+        Normalized Evidence
+                 ↓
+      Entity / Signal / Lead logic
+```
+
+Confirmed design consequences:
+
+- Crawl4AI is the default rich crawling/rendering/extraction framework (`A-037`).
+- BeautifulSoup/lxml may exist as bounded deterministic parsing utilities, not as a second scraping framework.
+- SearXNG performs discovery; snippets are not authoritative evidence (`A-042`).
+- stable public API/direct HTTP should beat browser crawling when cheaper and sufficient.
+- keyword lists aid query planning but never constitute lead qualification truth.
+
+### 3.4 Clients Hunter
+
+Clients Hunter is a **donor codebase** (`A-038`), not runtime legacy and not reference-only material.
+
+Migration policy:
+
+- source-adapter concept → keep/generalize;
+- Mostaql/Khamsat/Bahr knowledge → revalidate then cleanly reimplement where useful;
+- shallow→deep acquisition → keep/generalize;
+- URL dedup → extend into canonical source/entity/evidence identity;
+- retry/backoff → preserve behavior where the new framework does not already provide it;
+- keyword sets → query-planning hints only;
+- Firebase/Firecrawl/Streamlit legacy runtime → discard;
+- historical lead corpus → sanitize and convert into regression/evaluation fixtures.
+
+Raw legacy `.env`, credentials, service-account material, databases and archives are quarantined (`A-040`, `R-05`).
+
+---
+
+## 4. Antigravity setup review
+
+The control plane deliberately uses multiple enforcement layers rather than relying on one large prompt.
+
+### Detailed Custom Agents
+
+Each role has:
+
+- a detailed planner-facing `description`;
+- narrow explicit tool allowlist;
+- role-specific authority boundaries;
+- project invariants;
+- input/output handoff contract;
+- failure/stop behavior;
+- role-specific Skills.
+
+This matters because current Antigravity documentation states that the custom-agent description is used by the planner when deciding delegation and warns that invalid tool names can cause subagent execution problems.
+
+### Rules
+
+Only three workspace rules are used. They contain durable cross-role constraints, not every procedure. This avoids creating an oversized rule surface and leaves task procedures to focused Skills.
+
+### Skills
+
+Nine focused Skills provide progressive-disclosure procedures for capsules, build execution, verification, review, heavy-risk review, worktrees, acquisition, Clients Hunter migration and documentation synchronization.
+
+### Hooks / mechanical enforcement
+
+The package uses deterministic guards for constraints that should not depend on model compliance:
+
+- secret/credential access denial;
+- raw Clients Hunter artifact quarantine;
+- forced human confirmation for merge/push/history rewrite/destructive cleanup;
+- engineering-model identity fail-closed check;
+- premature Stop protection while background work remains active.
+
+The hook configuration and output contracts were rechecked against current official Antigravity hook documentation on 2026-09-05.
+
+### Context discipline
+
+Native subagents start from clean context. The project therefore uses bounded Task Capsules and compact deltas rather than passing long parent conversations. This is both a quality control and a quota-control mechanism.
+
+---
+
+## 5. Community signals considered without turning them into requirements
+
+Current user reports were treated as operational signals only. Recurring themes include rapid quota consumption under aggressive parallel subagent use and context-heavy workflows becoming less predictable. They do not override official behavior, but they support the defensive choices already made:
+
+- max two active subagents;
+- one delegation level;
+- no speculative swarm;
+- no `/boost`/teamwork dependency in the normal route;
+- concise Always-On rules;
+- focused Skills;
+- clean-context workers;
+- finite repair budgets;
+- local smoke tests after Antigravity upgrades.
+
+---
+
+## 6. Material issues found and repaired in v2 audit
+
+### R-01 — Codex could leak into product runtime
+
+**Status:** CLOSED.
+
+`A-019/A-031` and mechanical runtime-provider checks keep the product Google-only.
+
+### R-02 — Hermes + Antigravity could be described as already integrated
+
+**Status:** CLOSED AS DESIGN RISK; `T-01` OPEN AS INVESTIGATION.
+
+`agy` headless capability is not treated as proof of Hermes model-provider semantics.
+
+### R-03 — Gemini API fallback could create silent spend
+
+**Status:** CLOSED.
+
+Fallback remains disabled unless `T-05` establishes an allowed path or founders explicitly supersede the zero-cost constraint.
+
+### R-04 — Postiz could become an unnecessary MVP blocker
+
+**Status:** CLOSED.
+
+Publishing remains phase-gated; manual/direct substitutes preserve V1 usefulness.
+
+### R-05 — Clients Hunter can leak secrets and architecture debt
+
+**Status:** CLOSED WITH ACTIVE CONTROLS.
+
+Raw legacy material is quarantined; only sanitized fixtures and selectively reconstructed capabilities enter the project.
+
+### Engineering-harness stale wording
+
+**Detected in final v2 audit:** one Checkpoint statement still described Codex as the current implementation/review agent after the project moved to an Antigravity-native engineering harness.
+
+**Repair:** current documents now state that Antigravity custom agents are the active engineering control plane. Codex mentions remain only as historical/existing-resource context or explicit product-runtime prohibition.
+
+**Status:** CLOSED.
+
+---
+
+## 7. Automated and structural checks actually executed
+
+| Check | Result |
+|---|---|
+| `python scripts/verify_control_plane.py` | **PASS** |
+| `python scripts/test_hooks.py` | **PASS** |
+| `python scripts/scan_for_secrets.py` | **PASS** |
+| `python scripts/validate_agent_definitions.py` (via control-plane validator) | **PASS** |
+| Project Documentation Engine `validate_suite.py` | **PASS — no structural errors** |
+| Project Agent Workflow Engine `validate_generated_control_plane.py` | **PASS — 0 errors; 1 expected warning for unresolved capability/investigation items** |
+| Cross-document registry reference audit | **43 defined IDs; 39 referenced outside REG; 0 undefined references** |
+| Codex harness directory audit | **PASS — no `.codex/` control plane** |
+| Runtime provider allowlist/denylist audit | **PASS** |
+| Raw credential/legacy artifact fingerprint scan | **PASS** |
+| Hook positive/negative synthetic tests | **PASS** |
+
+The workflow-engine warning is intentional: `AG-CC-02`, `AG-CC-03`, and `T-09` are explicitly unresolved because they require the installed runtime or current target sites. They are not documentation gaps.
+
+---
+
+## 8. Capability checks that cannot be honestly completed in the generation environment
+
+| ID | Must prove on user's environment | If it fails |
+|---|---|---|
+| `AG-CC-01` | all six custom agents are discovered and launch | fix exact agent/frontmatter/tool mapping before work |
+| `AG-CC-02` | native worker effective config remains Gemini 3.8 Flash High / High | use pinned role runner; never silently downgrade |
+| `AG-CC-03` | native `workspace=branch` candidate is inspectable by parent/Verifier/Reviewer | use explicit Git worktree/candidate identity |
+| `AG-CC-04` | installed Antigravity actually executes project hooks/permissions as expected | repair config before trusted mutation |
+| `AG-CC-05` | Orchestrator respects ≤2 active workers and workers never delegate | terminate violating workers and fix role policy |
+
+Static validation is not substituted for these checks.
+
+---
+
+## 9. Implementation blockers and phase gates
+
+### Before first product implementation branch
+
+1. run `AG-CC-01..05` dry run;
+2. `T-08`: pin Hermes release and extension interfaces;
+3. `T-01`: prove Hermes↔Antigravity product-runtime path;
+4. retain provider/secret guards;
+5. establish clean SQLite/evidence/provenance baseline.
+
+### Before broad regional discovery
+
+- `T-02`: SearXNG localized-market benchmark;
+- explicit founder-controlled `M-03` country weights;
+- `M-11` query lexicons.
+
+### Before each specialized legacy-derived source adapter
+
+- run `T-09` against the **current** public site behavior;
+- use sanitized regression fixtures;
+- do not trust historical selectors or search semantics from Clients Hunter.
+
+### Before automatic publishing
+
+- close `T-03`, `T-06`, `T-07` for the selected publishing path;
+- preserve human approval and idempotency.
+
+---
+
+## 10. Design elements that must not be weakened during implementation
+
+1. evidence/provenance before material lead claims;
+2. search discovery separated from authoritative acquisition;
+3. manual founder ownership of country weights;
+4. public/authorized source boundary;
+5. secret redaction before model/context transfer;
+6. human approval for public/outbound actions initially;
+7. Marketing DB ownership separated from Hermes conversational memory;
+8. Google-only product runtime and no silent paid fallback;
+9. Hermes extension-first/reuse-first policy;
+10. Clients Hunter selective reconstruction rather than legacy wrapping;
+11. Crawl4AI-first rich acquisition instead of rebuilding a browser stack;
+12. Builder and Reviewer independence for STANDARD/HEAVY changes;
+13. human final merge to trusted `main` in V1.
+
+---
+
+## 11. Final readiness statement
+
+The package is **ready to be placed at the repository root and used as the governing Antigravity engineering environment**.
+
+It is not appropriate to claim that the installed Antigravity subagent/worktree behavior or Hermes product-runtime bridge is already proven. The package is intentionally fail-closed around these unknowns and provides bounded fallback procedures.
+
+The next correct action is **the local Antigravity dry run**, then `T-08`, then `T-01`. Only after those gates should the first real implementation capsule begin.

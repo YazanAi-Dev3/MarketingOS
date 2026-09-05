@@ -1,33 +1,14 @@
-# Marketing OS — Antigravity Agent Control Plane v1.0
+# Marketing OS — Antigravity Complete Engineering Package v2.1
 
-Project-specific engineering team/workflow for building Marketing OS with Google Antigravity. Product/runtime documents are included; the engineering control plane is separate from the marketer's runtime state and credentials.
+A self-contained pre-implementation package for the Hermes-based Marketing OS. It combines current project documentation, a hardened Google Antigravity multi-agent engineering control plane, deterministic safety hooks, least-privilege setup guidance, regional source-acquisition architecture, and a selective migration plan for the legacy Clients Hunter codebase.
 
-## Team
+Required engineering model policy: Gemini 3.8 Flash High + High effort for every custom engineering role. See `README_AR.md` and `docs/14-antigravity-engineering-environment.md` for setup and rationale.
 
-All six roles use **Gemini 3.8 Flash High**:
+## Validation status
 
-| Role | Purpose | Mutation |
-|---|---|---|
-| `orchestrator` | decisions, routing, decomposition, synthesis | durable control state only by default |
-| `explorer` | targeted repository evidence | no |
-| `builder` | bounded implementation and local repair | yes, capsule/worktree only |
-| `verifier` | named independent gates | no repairs |
-| `reviewer` | independent correctness/semantic gate | no |
-| `heavy-reviewer` | trigger-scoped deep risk review | no |
+Static package validation passes with zero agent-definition warnings, hook self-tests pass, secret/quarantine scan passes, the documentation suite passes, and the workflow-engine validator reports zero errors. Native Antigravity behavior remains intentionally gated by the local `AG-CC-01..05` dry run; product implementation then begins with `T-08` followed by `T-01`.
 
-There is no permanent Deep Builder. Builder budget exhaustion returns control to Main for re-scope or a clean Builder session.
+## Windows note: hooks and datacloud_telemetry
 
-## Model enforcement
-
-Main must be selected/launched as `gemini-3.8-flash-high` with `high` effort. Custom subagents use `model: inherit`. Because current custom-agent frontmatter has no separate effort field, `AG-CC-02` must prove High inheritance locally. If unproven, use `scripts/run_antigravity_role.py`, which pins the exact model and effort for a role run.
-
-## First use
-
-1. Copy/unpack into repository root.
-2. Run `python scripts/verify_control_plane.py`.
-3. Read `.agents/workflow/BOOTSTRAP_NEW.md`.
-4. Select `orchestrator` and Gemini 3.8 Flash High.
-5. Run `.agents/workflow/DRY-RUN.md`.
-6. Start with `T-08`, then `T-01`.
-
-Human founders keep final merge authority. STANDARD/HEAVY Builders use native Antigravity `workspace=branch`.
+- Project hook handlers intentionally live in `.agents/scripts/` because commands in `.agents/hooks.json` resolve from the customization context.
+- If the global `googlecloudtools.datacloud_telemetry` plugin raises `MODULE_NOT_FOUND` with a duplicated/quoted Windows path, disable that plugin from **Antigravity > Settings > Customizations / Plugins**, restart Antigravity, then run the hook self-tests.

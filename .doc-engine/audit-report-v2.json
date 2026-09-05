@@ -1,0 +1,38 @@
+{
+  "package": "marketing-os-antigravity-complete-v2.1",
+  "date": "2026-09-05",
+  "status": {
+    "documentation_ready": true,
+    "static_control_plane_ready": true,
+    "native_antigravity_ready": "CONDITIONAL_ON_AG_CC_01_05",
+    "product_implementation_ready": "CONDITIONAL_ON_T_08_THEN_T_01"
+  },
+  "validation": {
+    "agent_definitions": "PASS_0_ERRORS_0_WARNINGS",
+    "control_plane": "PASS",
+    "hooks": "PASS",
+    "secret_scan": "PASS",
+    "documentation_engine": "PASS_0_STRUCTURAL_ERRORS",
+    "workflow_engine": "PASS_0_ERRORS_EXPECTED_UNRESOLVED_WARNING",
+    "registry_defined_ids": 43,
+    "registry_referenced_ids_outside_reg": 39,
+    "undefined_registry_refs": []
+  },
+  "unresolved_local_capabilities": [
+    "AG-CC-01",
+    "AG-CC-02",
+    "AG-CC-03",
+    "AG-CC-04",
+    "AG-CC-05"
+  ],
+  "unresolved_product_investigations": [
+    "T-08",
+    "T-01",
+    "T-02",
+    "T-09"
+  ],
+  "notes": [
+    "Raw Clients Hunter artifacts are intentionally not packaged.",
+    "All engineering roles target Gemini 3.8 Flash High / High effort; native effective effort must be proven locally."
+  ]
+}

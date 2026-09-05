@@ -1,6 +1,0 @@
-Manifest: /mnt/data/marketing-os-antigravity-control-plane-v1.0/.agent-workflow/agent-control-manifest.json
-
-WARNINGS
-- manifest has 2 unresolved item(s); BOOTSTRAP_READY may be false
-
-PASS: 0 errors, 1 warning(s)

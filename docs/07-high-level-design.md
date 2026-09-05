@@ -1,6 +1,6 @@
 # Marketing OS — High-Level Design (HLD)
 
-> Version 1.0 · 2026-09-03 · Documentation-ready · Architecture source
+> Version 2.0 · 2026-09-05 · Documentation-ready · Architecture source
 
 ## 1. Governing architecture principle
 
@@ -323,3 +323,26 @@ Single VPS contains all OSS runtime services initially; Google reasoning is exte
 - [ ] dynamic sources are bounded by country/intent/taxonomy.
 - [ ] evidence and signal layers remain distinct.
 - [ ] degraded dependencies have explicit behavior.
+
+## v2 HLD delta — Source Acquisition subsystem
+
+```text
+Regional Policy / Intent
+        ↓
+Query Planner ──→ SearXNG (discovery)
+        ↓ candidates
+Acquisition Router
+  ├─ Public API / direct HTTP
+  └─ Crawl4AI
+        ↓
+Generic Profile / Specialized Source Adapter
+        ↓
+Evidence Normalization + Raw Artifact Store
+        ↓
+Entity Resolution → Signals → Lead / Content Intelligence
+```
+
+Crawl4AI owns the default rich web acquisition mechanics; adapters own source-specific current behavior. BeautifulSoup/lxml are optional lower-level utilities only. Clients Hunter contributes selectively migrated adapter/domain behavior and sanitized regression fixtures; it is not a deployed component.
+
+The Engineering Control Plane is separate from the product runtime: Antigravity Orchestrator delegates clean-context custom workers and uses worktree/review gates to build the system. These engineering sessions do not become Hermes runtime state.
+

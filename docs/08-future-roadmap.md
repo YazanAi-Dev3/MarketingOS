@@ -1,6 +1,6 @@
 # Marketing OS — Future Roadmap
 
-> Version 1.0 · 2026-09-03 · Purpose: analyzed deferrals, not a feature wish list
+> Version 2.0 · 2026-09-05 · Purpose: analyzed deferrals, not a feature wish list
 
 ## 1. Why this document exists
 
@@ -75,3 +75,10 @@ Activation trigger:
 Dependencies:
 What must not be prematurely built:
 ```
+
+## v2 roadmap delta
+
+- Specialized adapters beyond the first validated Mostaql/Khamsat/Bahr set are **earned**, not prebuilt. `M-14` determines when recurring source value justifies maintenance.
+- Legacy Clients Hunter UI/runtime migration is explicitly not on the roadmap; only useful capabilities/fixtures migrate.
+- If generic Crawl4AI acquisition proves sufficient for a high-value source, no custom adapter is required merely for architectural symmetry.
+

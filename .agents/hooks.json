@@ -1,0 +1,34 @@
+{
+  "marketing-os-pretool-safety": {
+    "PreToolUse": [
+      {
+        "matcher": "view_file|write_to_file|replace_file_content|multi_replace_file_content|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python ./scripts/hook_pretool_guard.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "marketing-os-model-identity": {
+    "PostInvocation": [
+      {
+        "type": "command",
+        "command": "python ./scripts/hook_model_guard.py",
+        "timeout": 10
+      }
+    ]
+  },
+  "marketing-os-stop-safety": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python ./scripts/hook_stop_guard.py",
+        "timeout": 10
+      }
+    ]
+  }
+}
