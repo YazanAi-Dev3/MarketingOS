@@ -1,6 +1,20 @@
 """Marketing OS Domain Tools for Hermes.
 
-Exposes domain capabilities (scan, source_evaluate, lead_assess, lead_list,
-content_ideas, approval_resolve, interaction_log) to the Hermes agent loop.
+Exposes domain capabilities (scan_market, assess_lead, list_leads, request_approval)
+to the Hermes agent loop.
 """
+from marketing_plugin.tools.domain_tools import (
+    DOMAIN_TOOLS,
+    assess_lead,
+    list_leads,
+    request_approval,
+    scan_market,
+)
 
+__all__ = [
+    "DOMAIN_TOOLS",
+    "assess_lead",
+    "list_leads",
+    "request_approval",
+    "scan_market",
+]

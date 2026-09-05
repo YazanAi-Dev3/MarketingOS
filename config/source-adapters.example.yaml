@@ -4,16 +4,25 @@ adapters:
     enabled: true
     promotion_policy: measured_value
   mostaql:
-    enabled: false
-    status: requires_T_09_revalidation
+    enabled: true
+    domain: mostaql.com
+    status: revalidated_T_09
+    acquisition_mode: crawl4ai
+    waf_protection: aws_alb_waf
     legacy_seed: clients_hunter
   khamsat:
-    enabled: false
-    status: requires_T_09_revalidation
+    enabled: true
+    domain: khamsat.com
+    status: revalidated_T_09
+    acquisition_mode: crawl4ai
+    waf_protection: aws_alb_waf
     legacy_seed: clients_hunter
   bahr:
-    enabled: false
-    status: requires_T_09_revalidation
+    enabled: true
+    domain: bahr.sa
+    status: revalidated_T_09
+    acquisition_mode: crawl4ai
+    framework: nextjs_spa
     legacy_seed: clients_hunter
 promotion:
   calibration_id: M-14

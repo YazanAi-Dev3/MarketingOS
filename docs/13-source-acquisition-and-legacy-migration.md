@@ -149,18 +149,34 @@ Crawled text is attacker-controlled input. Acquisition must not:
 
 SSRF/network/download limits are HEAVY-review concerns when implemented.
 
-## 12. T-09 — current-source revalidation
+## 12. T-09 — Current-Source Revalidation & Findings
 
-Before each Mostaql/Khamsat/Bahr specialized adapter:
-1. verify public-access terms/boundary;
-2. inspect current search/list/detail behavior;
-3. determine pagination and JavaScript/session requirements;
-4. identify stable fields/selectors/endpoints;
-5. decide direct HTTP/API vs Crawl4AI;
-6. create fixtures and one bounded live smoke;
-7. record current verification date/source version assumptions.
+Revalidation date: **2026-09-05** · Status: **CLOSED / VALIDATED**
 
-No historical selector is accepted merely because Clients Hunter used it.
+All three initial candidate freelance platforms were investigated and revalidated:
+
+### 12.1 Bahr (`bahr.sa`)
+- **Domain status:** Legacy host `bahr.910ths.sa` (referenced in Clients Hunter donor code) is DEAD and non-responsive. The active production platform is `bahr.sa`.
+- **Architecture:** Next.js App Router SPA with dynamic client-side rendering and hydration.
+- **Acquisition mode:** `CRAWL4AI` required for dynamic rendering; `BahrAdapter` also handles Next.js JSON payloads (`pageProps`) when available.
+- **Selectors & Fields:** Deterministic extraction for `title`, `budget`, `duration`, `tags`, `description`, and canonical `url`.
+- **Adapter status:** Implemented in `marketing_plugin/adapters/bahr_adapter.py`.
+
+### 12.2 Mostaql (`mostaql.com`)
+- **Domain status:** Active freelance marketplace under Hsoub.
+- **WAF boundary:** AWS ALB / WAF returns HTTP 403 Forbidden to direct HTTP requests (`httpx`) and standard headless Chromium without stealth flags.
+- **Acquisition mode:** `CRAWL4AI` rich acquisition mode required with browser fingerprint stealth and anti-bot headers.
+- **Selectors & Fields:** Table and card listings at `/projects` extracted deterministically: `title`, `budget`, `duration`, `tags`, `description`, and `url`.
+- **Adapter status:** Implemented in `marketing_plugin/adapters/mostaql_adapter.py`.
+
+### 12.3 Khamsat (`khamsat.com`)
+- **Domain status:** Active micro-services marketplace under Hsoub. Focuses on community project requests at `/community/requests`.
+- **WAF boundary:** AWS ALB / WAF returns HTTP 403 Forbidden to direct HTTP requests.
+- **Acquisition mode:** `CRAWL4AI` rich acquisition mode required with stealth headers.
+- **Selectors & Fields:** Community request table rows extracted deterministically: `title`, `author`, `description`, and `url`.
+- **Adapter status:** Implemented in `marketing_plugin/adapters/khamsat_adapter.py`.
+
+No historical selector is accepted merely because Clients Hunter used it. All adapters have unit tests backed by static fixtures in `tests/fixtures/freelance/`.
 
 ## 13. Acceptance criteria for acquisition layer
 

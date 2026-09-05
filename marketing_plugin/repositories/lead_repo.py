@@ -118,7 +118,7 @@ class LeadRepository:
         """Fetch the most recent assessment for a lead."""
         cur = self.conn.cursor()
         cur.execute(
-            "SELECT * FROM lead_assessments WHERE lead_id = ? ORDER BY created_at DESC LIMIT 1;",
+            "SELECT * FROM lead_assessments WHERE lead_id = ? ORDER BY created_at DESC, rowid DESC LIMIT 1;",
             (lead_id,),
         )
         row = cur.fetchone()
