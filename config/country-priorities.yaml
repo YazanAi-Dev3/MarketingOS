@@ -1,0 +1,14 @@
+# Runtime source of truth for manual geographic allocation (M-03).
+# Every enabled country has an explicit positive weight before production scans.
+# The agent may recommend changes, but MUST NOT mutate these values automatically.
+version: 1
+countries:
+  SA: {name: "Saudi Arabia", enabled: true, weight: 0.35, languages: [ar, en]}
+  AE: {name: "United Arab Emirates", enabled: true, weight: 0.25, languages: [ar, en]}
+  QA: {name: "Qatar", enabled: true, weight: 0.10, languages: [ar, en]}
+  SY: {name: "Syria", enabled: true, weight: 0.10, languages: [ar, en]}
+  TR: {name: "Turkey", enabled: true, weight: 0.10, languages: [tr, en, ar]}
+  BH: {name: "Bahrain", enabled: true, weight: 0.03, languages: [ar, en]}
+  OM: {name: "Oman", enabled: true, weight: 0.03, languages: [ar, en]}
+  JO: {name: "Jordan", enabled: true, weight: 0.02, languages: [ar, en]}
+  LB: {name: "Lebanon", enabled: true, weight: 0.02, languages: [ar, en, fr]}

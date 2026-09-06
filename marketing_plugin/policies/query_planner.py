@@ -115,6 +115,16 @@ SERVICE_TEMPLATES: Dict[str, Dict[str, List[str]]] = {
 class RegionalQueryPlanner:
     """Produces focused query plans for a country, service, and intent."""
 
+    def generate_plan(
+        self,
+        country_code: str,
+        service_key: str = "ai_automation",
+        intent: str = "company_discovery",
+        funnel: FunnelType = FunnelType.B2B,
+    ) -> QueryPlan:
+        """Alias for plan() to satisfy both contracts."""
+        return self.plan(country_code=country_code, service_key=service_key, intent=intent, funnel=funnel)
+
     def plan(
         self,
         country_code: str,

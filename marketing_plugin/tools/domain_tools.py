@@ -24,6 +24,7 @@ from marketing_plugin.repositories.database import Database
 from marketing_plugin.repositories.evidence_repo import EvidenceRepository
 from marketing_plugin.repositories.lead_repo import LeadRepository
 from marketing_plugin.repositories.source_repo import SourceRepository
+from marketing_plugin.services.market_scanner import MarketScanner, ScanRunSummary
 from schemas.models import (
     Approval,
     ApprovalDecision,
@@ -48,13 +49,20 @@ def _get_db(db: Optional[Database] = None) -> Database:
 
 def scan_market(
     country_code: str,
-    query: str,
+    query: Optional[str] = None,
     service_key: Optional[str] = None,
     db: Optional[Database] = None,
     planner: Optional[RegionalQueryPlanner] = None,
     searxng_adapter: Optional[Any] = None,
+    acquisition_router: Optional[Any] = None,
+    scanner: Optional[MarketScanner] = None,
+    limit: Optional[int] = None,
+    run_full_scanner: bool = False,
 ) -> Dict[str, Any]:
     """Scans regional market for lead/service discovery using search and freelance sources.
+
+    Supports running both fast discovery checks and the full end-to-end MarketScanner
+    pipeline with page acquisition, extraction, entity resolution, and SQLite storage.
 
     Args:
         country_code: Two-letter ISO country code (e.g. 'SA', 'AE').
@@ -63,10 +71,43 @@ def scan_market(
         db: Optional Database manager for recording the run.
         planner: Optional query planner override.
         searxng_adapter: Optional SearXNG adapter instance.
+        acquisition_router: Optional AcquisitionRouter instance.
+        scanner: Optional pre-configured MarketScanner instance.
+        limit: Optional limit on queries / discovered URLs.
+        run_full_scanner: Whether to execute the full page acquisition and resolution pipeline.
     """
     country_code = country_code.strip().upper()
     active_service = service_key or "ai_automation"
     query_planner = planner or RegionalQueryPlanner()
+
+    # If full scanner requested or explicit MarketScanner supplied or query omitted
+    if run_full_scanner or scanner is not None or query is None:
+        active_scanner = scanner or MarketScanner(
+            db=db,
+            planner=query_planner,
+            searxng_adapter=searxng_adapter,
+            acquisition_router=acquisition_router,
+        )
+        summary = active_scanner.scan(
+            country_code=country_code,
+            service_key=active_service,
+            limit=limit,
+            query=query,
+        )
+        return {
+            "status": "success",
+            "country_code": country_code,
+            "service_key": active_service,
+            "query": query,
+            "scan_summary": summary.to_dict(),
+            "created_companies": summary.created_companies,
+            "merged_companies": summary.merged_companies,
+            "saved_evidence": summary.saved_evidence,
+            "acquired_pages": summary.acquired_pages,
+            "discovered_urls": summary.discovered_urls,
+            "queries_executed": summary.queries_executed,
+            "errors": summary.errors,
+        }
 
     # 1. Generate Regional Query Plan
     plan = query_planner.plan(

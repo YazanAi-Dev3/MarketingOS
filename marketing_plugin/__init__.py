@@ -3,6 +3,10 @@
 Provides domain tools, repositories, policies, and adapters for
 Market Radar, Content Engine, and Conversation Intake.
 """
+from marketing_plugin.services import (
+    EntityResolver,
+    MarketScanner,
+)
 from marketing_plugin.tools.domain_tools import (
     DOMAIN_TOOLS,
     assess_lead,
@@ -20,4 +24,7 @@ __all__ = [
     "list_leads",
     "request_approval",
     "scan_market",
+    "EntityResolver",
+    "MarketScanner",
 ]
+
