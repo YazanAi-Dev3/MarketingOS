@@ -11,7 +11,9 @@ from unittest.mock import MagicMock
 from marketing_plugin import (
     DOMAIN_TOOLS,
     assess_lead,
+    generate_content,
     list_leads,
+    publish_content,
     request_approval,
     scan_market,
 )
@@ -69,14 +71,15 @@ class TestDomainTools(unittest.TestCase):
     # --- Tool Registration Tests ---
 
     def test_tool_registration(self):
-        """Ensure all 5 domain tools are exported in DOMAIN_TOOLS and package namespace."""
-        self.assertEqual(len(DOMAIN_TOOLS), 5)
+        """Ensure all 6 domain tools are exported in DOMAIN_TOOLS and package namespace."""
+        self.assertEqual(len(DOMAIN_TOOLS), 6)
         tool_names = [t.__name__ for t in DOMAIN_TOOLS]
         self.assertIn("scan_market", tool_names)
         self.assertIn("assess_lead", tool_names)
         self.assertIn("list_leads", tool_names)
         self.assertIn("request_approval", tool_names)
         self.assertIn("generate_content", tool_names)
+        self.assertIn("publish_content", tool_names)
 
     # --- scan_market Tests ---
 
@@ -387,3 +390,43 @@ class TestDomainTools(unittest.TestCase):
         self.assertIsNotNone(appr)
         self.assertEqual(appr.decision, ApprovalDecision.PENDING)
         self.assertEqual(appr.notes, "Ready for LinkedIn posting; pending marketing lead sign-off")
+
+    def test_publish_content_tool_flow(self):
+        """Verify publish_content tool blocks unapproved assets and dispatches approved ones."""
+        # Seed service profile
+        self.conn.execute("""
+            INSERT OR IGNORE INTO service_profiles (service_key, priority_class, allowed_funnels, offer_summary)
+            VALUES ('ai_automation', 'primary', '["b2b"]', 'AI Automation');
+        """)
+        self.conn.commit()
+
+        # 1. Generate content (creates assets in awaiting_approval status)
+        gen_res = generate_content(
+            service_key="ai_automation",
+            country_code="SA",
+            platforms=["telegram"],
+            db=self.db,
+        )
+        self.assertEqual(gen_res["status"], "success")
+        asset_id = gen_res["assets"][0]["asset_id"]
+
+        # 2. Try to publish immediately -> permission_denied (A-007, I-02)
+        denied_res = publish_content(asset_id=asset_id, db=self.db)
+        self.assertEqual(denied_res["status"], "permission_denied")
+        self.assertTrue(denied_res["approval_required"])
+
+        # 3. Find and approve the approval record
+        pending = self.approval_repo.list_pending(target_type="content_asset")
+        target_appr = next(a for a in pending if a.target_id == asset_id)
+        self.approval_repo.resolve(
+            approval_id=target_appr.approval_id,
+            decision=ApprovalDecision.APPROVED,
+            actor_id="admin_tester",
+            notes="Approved for publishing",
+        )
+
+        # 4. Now publish succeeds
+        pub_res = publish_content(asset_id=asset_id, db=self.db)
+        self.assertEqual(pub_res["status"], "success")
+        self.assertEqual(pub_res["publication_status"], "published")
+

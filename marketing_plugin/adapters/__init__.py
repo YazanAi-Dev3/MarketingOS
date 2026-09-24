@@ -21,6 +21,10 @@ from marketing_plugin.adapters.bahr_adapter import BahrAdapter
 from marketing_plugin.adapters.base import BaseSourceAdapter
 from marketing_plugin.adapters.khamsat_adapter import KhamsatAdapter
 from marketing_plugin.adapters.mostaql_adapter import MostaqlAdapter
+from marketing_plugin.adapters.postiz_adapter import (
+    PostizAdapter,
+    PostizPostResponse,
+)
 from marketing_plugin.adapters.searxng_adapter import (
     SearXNGAdapter,
     normalize_url,
@@ -38,6 +42,8 @@ __all__ = [
     "BahrAdapter",
     "KhamsatAdapter",
     "MostaqlAdapter",
+    "PostizAdapter",
+    "PostizPostResponse",
     "SearXNGAdapter",
     "normalize_url",
 ]

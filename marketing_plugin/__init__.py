@@ -7,12 +7,14 @@ from marketing_plugin.services import (
     ContentEngine,
     EntityResolver,
     MarketScanner,
+    PublishingService,
 )
 from marketing_plugin.tools.domain_tools import (
     DOMAIN_TOOLS,
     assess_lead,
     generate_content,
     list_leads,
+    publish_content,
     request_approval,
     scan_market,
 )
@@ -24,10 +26,12 @@ __all__ = [
     "DOMAIN_TOOLS",
     "assess_lead",
     "generate_content",
+    "publish_content",
     "list_leads",
     "request_approval",
     "scan_market",
     "ContentEngine",
+    "PublishingService",
     "EntityResolver",
     "MarketScanner",
 ]

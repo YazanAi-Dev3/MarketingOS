@@ -17,6 +17,7 @@ from marketing_plugin.adapters.bahr_adapter import BahrAdapter
 from marketing_plugin.adapters.base import BaseSourceAdapter
 from marketing_plugin.adapters.khamsat_adapter import KhamsatAdapter
 from marketing_plugin.adapters.mostaql_adapter import MostaqlAdapter
+from marketing_plugin.adapters.postiz_adapter import PostizAdapter
 from marketing_plugin.policies.query_planner import RegionalQueryPlanner
 from marketing_plugin.repositories.approval_repo import ApprovalRepository
 from marketing_plugin.repositories.company_repo import CompanyRepository
@@ -27,6 +28,7 @@ from marketing_plugin.repositories.source_repo import SourceRepository
 from marketing_plugin.services.content_engine import ContentEngine
 from marketing_plugin.services.lead_scorer import LeadScorer, LeadScorerResult
 from marketing_plugin.services.market_scanner import MarketScanner, ScanRunSummary
+from marketing_plugin.services.publishing_service import PublishingService
 from schemas.models import (
     Approval,
     ApprovalDecision,
@@ -436,10 +438,76 @@ def generate_content(
     }
 
 
+def publish_content(
+    asset_id: str,
+    scheduled_at: Optional[str] = None,
+    force_manual: bool = False,
+    db: Optional[Database] = None,
+    postiz_adapter: Optional[PostizAdapter] = None,
+) -> Dict[str, Any]:
+    """Publishes or schedules an approved content asset to social channels (Invariants A-007, A-021, I-02).
+
+    Enforces mandatory human gatekeeper approval. Connects to Postiz for social networks,
+    direct Telegram dispatch, or provides a structured manual export package if Postiz is offline (R-04).
+
+    Args:
+        asset_id: Unique ID of the ContentAsset to publish.
+        scheduled_at: Optional ISO 8601 timestamp string for scheduling.
+        force_manual: Whether to force manual export even if automated publishing is available.
+        db: Optional Database manager instance.
+        postiz_adapter: Optional PostizAdapter override.
+    """
+    database = _get_db(db)
+    service = PublishingService(
+        db=database,
+        postiz_adapter=postiz_adapter,
+    )
+
+    sched_dt: Optional[datetime] = None
+    if scheduled_at:
+        try:
+            sched_dt = datetime.fromisoformat(scheduled_at)
+        except Exception:
+            pass
+
+    try:
+        res = service.dispatch_asset(
+            content_asset_id=asset_id,
+            scheduled_at=sched_dt,
+            force_manual=force_manual,
+        )
+        return {
+            "status": "success" if res.success else "failed",
+            "asset_id": res.asset_id,
+            "platform": res.platform,
+            "publication_status": res.status,
+            "dispatch_mode": res.dispatch_mode,
+            "remote_id": res.remote_id,
+            "scheduled_at": res.scheduled_at,
+            "manual_export_package": res.manual_export_package,
+            "error": res.error,
+        }
+    except PermissionError as exc:
+        return {
+            "status": "permission_denied",
+            "asset_id": asset_id,
+            "error": str(exc),
+            "approval_required": True,
+            "policy_violation": "A-007/I-02: External actions require human approval record with decision='approved'.",
+        }
+    except ValueError as exc:
+        return {
+            "status": "not_found",
+            "asset_id": asset_id,
+            "error": str(exc),
+        }
+
+
 DOMAIN_TOOLS: List[Callable[..., Any]] = [
     scan_market,
     assess_lead,
     list_leads,
     request_approval,
     generate_content,
+    publish_content,
 ]

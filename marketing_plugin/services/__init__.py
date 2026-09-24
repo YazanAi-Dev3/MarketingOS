@@ -19,6 +19,10 @@ from marketing_plugin.services.lead_scorer import (
     LeadScorer,
     LeadScorerResult,
 )
+from marketing_plugin.services.publishing_service import (
+    DispatchResult,
+    PublishingService,
+)
 from marketing_plugin.services.telegram_operator import (
     CallbackResult,
     CommandResponse,
@@ -28,12 +32,14 @@ from marketing_plugin.services.telegram_operator import (
 
 __all__ = [
     "ContentEngine",
+    "DispatchResult",
     "EntityResolver",
     "ResolutionOutcome",
     "MarketScanner",
     "ScanRunSummary",
     "LeadScorer",
     "LeadScorerResult",
+    "PublishingService",
     "TelegramOperatorService",
     "TelegramOperatorConfig",
     "CommandResponse",
