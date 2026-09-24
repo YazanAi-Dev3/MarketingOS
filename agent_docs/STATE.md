@@ -34,13 +34,13 @@ Foundation milestones completed:
 - CAPSULE-002 & T-09 External Gates: Independent verification (`verifier`) and acceptance review (`reviewer`) PASSED with zero findings; Heavy Risk Review (`heavy-reviewer`) PASSED (Low residual risk). All repairs (01: qualification truth & dynamic source lookup, 02: deterministic rowid tie-breaker) verified.
 - GitHub repository & Merge: Fast-forward merged `candidate/t09-freelance-adapters` into `main` and pushed to `https://github.com/YazanAi-Dev3/MarketingOS` (tracked on `origin/main`).
 - CAPSULE-003 (Phase 1 Scanner Pipeline & Entity Deduplication): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
-- CAPSULE-004 (Lead Scoring & AI Qualification Engine): COMPLETED on branch `candidate/capsule-004-lead-scoring`.
-  - `LeadScorer` (`marketing_plugin/services/lead_scorer.py`): Multi-factor AI qualification (`M-01` fit, pain, urgency, reachability) integrating Google-only `AntigravityAdapter` reasoning (`A-019`, `T-01`), strict academic integrity enforcement (`A-008`), secret scrubbing (`A-018`, `I-05`), prompt injection resilience, and append-only `LeadAssessment` snapshots with evidence provenance (`A-017`).
-  - Hermes Domain Tool: `marketing_plugin/tools/domain_tools.py` updated with `assess_lead` delegating directly to `LeadScorer`.
-  - Unit & Integration Test Suite: `tests/unit/test_lead_scorer.py` and `tests/integration/test_lead_qualification_pipeline.py` covering synthetic multilingual corpus fixtures, ground truth ranking labels (`LEAD_PRIORITY_RANKING_LABELS`), academic violation rejections, and human approval flow (`request_approval`).
-  - Full test suite: 93 tests passing cleanly (100% pass rate in ~1.8s).
+- CAPSULE-004 (Lead Scoring & AI Qualification Engine): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
+- CAPSULE-005 (Telegram Operator Bot & Interactive Approvals): COMPLETED on branch `candidate/capsule-005-telegram-operator`.
+  - `TelegramOperatorService` (`marketing_plugin/services/telegram_operator.py`): Founder daily control surface (`A-013`), strict admin allowlist authorization (`A-026`), negative authentication enforcement, interactive approval cards with Telegram inline keyboard buttons (`A-007`, `I-02`), idempotent callback resolution preventing double-mutation, and audit tracking.
+  - Control Commands: `/status` (system digest), `/leads` (top qualified leads), `/pending` (interactive approval list), `/approve`, `/reject`.
+  - Unit & Integration Test Suite: `tests/unit/test_telegram_operator.py` and `tests/integration/test_telegram_approval_workflow.py` covering negative auth, chat allowlists, inline buttons, idempotency, and full qualification-to-approval lifecycle.
+  - Full test suite: 103 tests passing cleanly (100% pass rate in ~2.6s).
 
-Next immediate steps (Phase 1 / Phase 2 transition):
-1. Operator Telegram Bot Interface & Interactive Approval Surface (`A-013`, `A-007`).
-2. Phase 2 Content Engine & Multi-Platform Publishing pipeline.
+Next immediate steps (Phase 2):
+1. Phase 2 Content Engine & Multi-Platform Publishing pipeline (`ContentIdea`, multi-platform draft adapters for LinkedIn/X/Instagram, and human approval workflow).
 
