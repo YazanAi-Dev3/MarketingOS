@@ -530,3 +530,4 @@ class ContentEngine:
         except Exception as exc:
             logger.warning(f"Exception during model idea generation: {exc}")
             return []
+

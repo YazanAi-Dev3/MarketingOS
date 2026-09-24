@@ -205,3 +205,4 @@ class ContentRepository:
             status=ContentAssetStatus(row["status"]),
             version=int(row["version"]),
         )
+
