@@ -5,6 +5,7 @@ from datetime import datetime
 from marketing_plugin.repositories.agent_run_repo import AgentRunRepository
 from marketing_plugin.repositories.approval_repo import ApprovalRepository
 from marketing_plugin.repositories.company_repo import CompanyRepository
+from marketing_plugin.repositories.content_repo import ContentRepository
 from marketing_plugin.repositories.database import Database
 from marketing_plugin.repositories.evidence_repo import EvidenceRepository
 from marketing_plugin.repositories.lead_repo import LeadRepository
@@ -16,6 +17,10 @@ from schemas.models import (
     Approval,
     ApprovalDecision,
     Company,
+    ContentAsset,
+    ContentAssetStatus,
+    ContentIdea,
+    ContentIdeaObjective,
     Evidence,
     ExtractorType,
     FunnelType,
@@ -58,6 +63,7 @@ class TestRepositories(unittest.TestCase):
         self.lead_repo = LeadRepository(self.conn)
         self.approval_repo = ApprovalRepository(self.conn)
         self.agent_run_repo = AgentRunRepository(self.conn)
+        self.content_repo = ContentRepository(self.conn)
 
 
     def tearDown(self):
@@ -399,6 +405,56 @@ class TestRepositories(unittest.TestCase):
                         os.remove(p)
                     except OSError:
                         pass
+
+
+    def test_content_repository_lifecycle(self):
+        """Verifies ContentRepository operations for ideas and multi-platform assets."""
+        idea = ContentIdea(
+            content_idea_id="idea-integ-01",
+            funnel=FunnelType.B2B,
+            market_scope=["SA", "AE"],
+            service_key="ai_automation",
+            source_signal_ids=["sig-01"],
+            topic="Automating Enterprise Dispatch in Riyadh",
+            objective=ContentIdeaObjective.DEMAND_CAPTURE,
+            score=0.91,
+            status="proposed",
+        )
+        self.content_repo.save_idea(idea)
+
+        fetched_idea = self.content_repo.get_idea("idea-integ-01")
+        self.assertIsNotNone(fetched_idea)
+        self.assertEqual(fetched_idea.topic, "Automating Enterprise Dispatch in Riyadh")
+        self.assertEqual(fetched_idea.market_scope, ["SA", "AE"])
+
+        # Add asset
+        asset = ContentAsset(
+            content_asset_id="asset-integ-01",
+            idea_id="idea-integ-01",
+            master_content="Master narrative for dispatch automation",
+            platform="linkedin",
+            format="long_form_post",
+            body="Complete post body for testing",
+            media_brief="Workflow architecture chart",
+            cta="Schedule an engineering audit",
+            status=ContentAssetStatus.AWAITING_APPROVAL,
+            version=1,
+        )
+        self.content_repo.save_asset(asset)
+
+        fetched_asset = self.content_repo.get_asset("asset-integ-01")
+        self.assertIsNotNone(fetched_asset)
+        self.assertEqual(fetched_asset.platform, "linkedin")
+        self.assertEqual(fetched_asset.status, ContentAssetStatus.AWAITING_APPROVAL)
+
+        # Update status
+        updated = self.content_repo.update_asset_status("asset-integ-01", ContentAssetStatus.APPROVED)
+        self.assertTrue(updated)
+        self.assertEqual(self.content_repo.get_asset("asset-integ-01").status, ContentAssetStatus.APPROVED)
+
+        # List assets
+        assets = self.content_repo.list_assets(idea_id="idea-integ-01")
+        self.assertEqual(len(assets), 1)
 
 
 if __name__ == "__main__":

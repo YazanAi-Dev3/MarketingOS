@@ -69,13 +69,14 @@ class TestDomainTools(unittest.TestCase):
     # --- Tool Registration Tests ---
 
     def test_tool_registration(self):
-        """Ensure all 4 domain tools are exported in DOMAIN_TOOLS and package namespace."""
-        self.assertEqual(len(DOMAIN_TOOLS), 4)
+        """Ensure all 5 domain tools are exported in DOMAIN_TOOLS and package namespace."""
+        self.assertEqual(len(DOMAIN_TOOLS), 5)
         tool_names = [t.__name__ for t in DOMAIN_TOOLS]
         self.assertIn("scan_market", tool_names)
         self.assertIn("assess_lead", tool_names)
         self.assertIn("list_leads", tool_names)
         self.assertIn("request_approval", tool_names)
+        self.assertIn("generate_content", tool_names)
 
     # --- scan_market Tests ---
 

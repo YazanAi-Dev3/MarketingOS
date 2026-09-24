@@ -35,12 +35,15 @@ Foundation milestones completed:
 - GitHub repository & Merge: Fast-forward merged `candidate/t09-freelance-adapters` into `main` and pushed to `https://github.com/YazanAi-Dev3/MarketingOS` (tracked on `origin/main`).
 - CAPSULE-003 (Phase 1 Scanner Pipeline & Entity Deduplication): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
 - CAPSULE-004 (Lead Scoring & AI Qualification Engine): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
-- CAPSULE-005 (Telegram Operator Bot & Interactive Approvals): COMPLETED on branch `candidate/capsule-005-telegram-operator`.
-  - `TelegramOperatorService` (`marketing_plugin/services/telegram_operator.py`): Founder daily control surface (`A-013`), strict admin allowlist authorization (`A-026`), negative authentication enforcement, interactive approval cards with Telegram inline keyboard buttons (`A-007`, `I-02`), idempotent callback resolution preventing double-mutation, and audit tracking.
-  - Control Commands: `/status` (system digest), `/leads` (top qualified leads), `/pending` (interactive approval list), `/approve`, `/reject`.
-  - Unit & Integration Test Suite: `tests/unit/test_telegram_operator.py` and `tests/integration/test_telegram_approval_workflow.py` covering negative auth, chat allowlists, inline buttons, idempotency, and full qualification-to-approval lifecycle.
-  - Full test suite: 103 tests passing cleanly (100% pass rate in ~2.6s).
+- CAPSULE-005 (Telegram Operator Bot & Interactive Approvals): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
+- CAPSULE-006 (Content Engine & Multi-Platform Drafting): COMPLETED on candidate branch `candidate/capsule-006-content-engine`.
+  - `ContentRepository` (`marketing_plugin/repositories/content_repo.py`): Complete CRUD and query capabilities for `ContentIdea` and `ContentAsset` entities in SQLite, foreign key cascading, and status progression.
+  - `ContentEngine` (`marketing_plugin/services/content_engine.py`): Evidence-grounded marketing idea synthesis (A-028, M-06), platform-tailored draft generation for LinkedIn, Twitter/X, Instagram, and Telegram, secret redaction (A-018, I-05), and strict human approval gating (A-007, I-02).
+  - Hermes Domain Tool: `generate_content` implemented in `marketing_plugin/tools/domain_tools.py` and exported in package root `marketing_plugin`.
+  - Comprehensive Verification Suite: `tests/unit/test_content_engine.py` (8 tests) and `tests/integration/test_content_generation_pipeline.py` (3 tests) covering end-to-end evidence ingestion -> idea synthesis -> multi-platform drafting -> Telegram operator approval lifecycle -> published status.
+  - Full test suite: 115 tests passing cleanly (100% pass rate in ~2.0s).
 
 Next immediate steps (Phase 2):
-1. Phase 2 Content Engine & Multi-Platform Publishing pipeline (`ContentIdea`, multi-platform draft adapters for LinkedIn/X/Instagram, and human approval workflow).
+1. Social publishing scheduler integration (Postiz API connector / social queues) guarded by human approvals.
+2. Conversation Intake & Inbound DM qualification pipeline (WhatsApp / Email / Telegram lead capture).
 

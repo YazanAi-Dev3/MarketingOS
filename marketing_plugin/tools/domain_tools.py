@@ -24,11 +24,13 @@ from marketing_plugin.repositories.database import Database
 from marketing_plugin.repositories.evidence_repo import EvidenceRepository
 from marketing_plugin.repositories.lead_repo import LeadRepository
 from marketing_plugin.repositories.source_repo import SourceRepository
+from marketing_plugin.services.content_engine import ContentEngine
 from marketing_plugin.services.lead_scorer import LeadScorer, LeadScorerResult
 from marketing_plugin.services.market_scanner import MarketScanner, ScanRunSummary
 from schemas.models import (
     Approval,
     ApprovalDecision,
+    ContentIdeaObjective,
     FunnelType,
     Lead,
     LeadAssessment,
@@ -346,9 +348,98 @@ def request_approval(
     }
 
 
+def generate_content(
+    service_key: str = "ai_automation",
+    topic: Optional[str] = None,
+    country_code: Optional[str] = "SA",
+    platforms: Optional[List[str]] = None,
+    objective: str = "demand_capture",
+    evidence_ids: Optional[List[str]] = None,
+    count: int = 1,
+    db: Optional[Database] = None,
+) -> Dict[str, Any]:
+    """Synthesizes grounded marketing ideas and drafts tailored multi-platform copy (Invariant A-028, A-007).
+
+    Generates structured drafts for LinkedIn, X/Twitter, Instagram, and Telegram,
+    placing all assets into 'awaiting_approval' status with persistent approval records.
+
+    Args:
+        service_key: Offering to promote ('ai_automation', 'software_systems', 'academic_mentoring').
+        topic: Optional explicit custom topic to focus the drafts.
+        country_code: Regional targeting code (e.g. 'SA', 'AE').
+        platforms: List of target platforms (default: ['linkedin', 'twitter', 'instagram', 'telegram']).
+        objective: Strategic objective ('demand_capture', 'case_style', 'education', 'trust', 'direct_offer').
+        evidence_ids: Specific evidence IDs to cite and ground the narrative.
+        count: Number of ideas to generate if topic is not provided.
+        db: Optional Database instance.
+    """
+    database = _get_db(db)
+    engine = ContentEngine(db=database)
+
+    try:
+        obj_enum = ContentIdeaObjective(objective.lower().strip())
+    except (ValueError, AttributeError):
+        obj_enum = ContentIdeaObjective.DEMAND_CAPTURE
+
+    target_scope = [country_code.upper().strip()] if country_code else ["SA"]
+
+    ideas = engine.generate_ideas(
+        service_key=service_key,
+        market_scope=target_scope,
+        evidence_ids=evidence_ids,
+        count=count,
+        objective=obj_enum,
+        custom_topic=topic,
+    )
+
+    if not ideas:
+        return {
+            "status": "error",
+            "message": "No content ideas could be generated for the specified parameters.",
+            "ideas": [],
+            "assets": [],
+        }
+
+    primary_idea = ideas[0]
+    drafted_assets = engine.draft_multiplatform_assets(
+        idea_id=primary_idea.content_idea_id,
+        platforms=platforms or ["linkedin", "twitter", "instagram", "telegram"],
+        auto_request_approval=True,
+    )
+
+    return {
+        "status": "success",
+        "primary_idea": {
+            "idea_id": primary_idea.content_idea_id,
+            "topic": primary_idea.topic,
+            "objective": primary_idea.objective.value,
+            "service_key": primary_idea.service_key,
+            "score": primary_idea.score,
+            "source_evidence_ids": primary_idea.source_signal_ids,
+        },
+        "all_ideas_count": len(ideas),
+        "assets_count": len(drafted_assets),
+        "assets": [
+            {
+                "asset_id": a.content_asset_id,
+                "platform": a.platform,
+                "format": a.format,
+                "status": a.status.value,
+                "body_preview": a.body[:150] + "..." if len(a.body) > 150 else a.body,
+                "cta": a.cta,
+                "media_brief": a.media_brief,
+            }
+            for a in drafted_assets
+        ],
+        "approval_required": True,
+        "policy_notice": "Assets created in 'awaiting_approval' status. Human approval required prior to publishing (A-007, I-02).",
+    }
+
+
 DOMAIN_TOOLS: List[Callable[..., Any]] = [
     scan_market,
     assess_lead,
     list_leads,
     request_approval,
+    generate_content,
 ]
