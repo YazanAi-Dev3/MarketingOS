@@ -166,3 +166,4 @@ class PostizAdapter:
                 providers=normalized_platforms,
                 error_message=err_msg,
             )
+
