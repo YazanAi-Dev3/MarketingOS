@@ -24,6 +24,7 @@ from marketing_plugin.repositories.database import Database
 from marketing_plugin.repositories.evidence_repo import EvidenceRepository
 from marketing_plugin.repositories.lead_repo import LeadRepository
 from marketing_plugin.repositories.source_repo import SourceRepository
+from marketing_plugin.services.lead_scorer import LeadScorer, LeadScorerResult
 from marketing_plugin.services.market_scanner import MarketScanner, ScanRunSummary
 from schemas.models import (
     Approval,
@@ -205,209 +206,44 @@ def assess_lead(
     company_id: str,
     context: Optional[Dict[str, Any]] = None,
     db: Optional[Database] = None,
+    scorer: Optional[LeadScorer] = None,
 ) -> Dict[str, Any]:
     """Assesses a company entity and produces an append-only LeadAssessment snapshot.
+
+    Uses LeadScorer for AI-assisted multi-factor scoring (M-01), academic integrity checks (A-008),
+    and deterministic fallback behavior.
 
     Args:
         company_id: The ID of the company to evaluate.
         context: Optional evaluation context or override weights.
         db: Optional Database instance.
+        scorer: Optional LeadScorer instance.
     """
     database = _get_db(db)
-    conn = database.connect()
-    company_repo = CompanyRepository(conn)
-    evidence_repo = EvidenceRepository(conn)
-    lead_repo = LeadRepository(conn)
+    active_scorer = scorer or LeadScorer(db=database)
+    res = active_scorer.score_company(company_id=company_id, context=context)
 
-    company = company_repo.get_company(company_id)
-    if not company:
+    if not res.success:
         return {
             "status": "error",
-            "error": f"Company '{company_id}' not found in registry",
+            "error": res.error or f"Company '{company_id}' not found in registry",
         }
-
-    evidence_list = evidence_repo.list_for_company(company_id)
-    evidence_ids = [e.evidence_id for e in evidence_list]
-
-    ctx = context or {}
-    model_eval = ctx.get("model_evaluation") or ctx.get("reasoning_result")
-
-    # 1. Fit score: domain validity, industry presence, and evidence presence
-    if "fit_score" in ctx:
-        fit_score = float(ctx["fit_score"])
-    elif isinstance(model_eval, dict) and "fit_score" in model_eval:
-        fit_score = float(model_eval["fit_score"])
-    else:
-        score = 0.3
-        if company.primary_domain:
-            score += 0.3
-        if company.public_contacts_json:
-            score += 0.2
-        if evidence_list:
-            score += 0.2
-        fit_score = min(1.0, score)
-
-    # 2. Pain score: baseline reflects unverified raw signals; explicit model assessment sets qualification truth
-    # Invariant docs/09-final-design-review.md:108: keyword lists aid query planning but never constitute lead qualification truth.
-    if "pain_score" in ctx:
-        pain_score = float(ctx["pain_score"])
-    elif isinstance(model_eval, dict) and "pain_score" in model_eval:
-        pain_score = float(model_eval["pain_score"])
-    else:
-        pain_score = 0.50
-
-    # 3. Urgency score
-    if "urgency_score" in ctx:
-        urgency_score = float(ctx["urgency_score"])
-    elif isinstance(model_eval, dict) and "urgency_score" in model_eval:
-        urgency_score = float(model_eval["urgency_score"])
-    else:
-        urgency_score = 0.75 if evidence_list else 0.50
-
-    # 4. Reachability score: public contacts availability
-    if "reachability_score" in ctx:
-        reachability_score = float(ctx["reachability_score"])
-    elif isinstance(model_eval, dict) and "reachability_score" in model_eval:
-        reachability_score = float(model_eval["reachability_score"])
-    else:
-        reachability_score = 0.90 if company.public_contacts_json else 0.35
-
-    # 5. Composite Final Score
-    final_score = round(
-        0.30 * fit_score + 0.30 * pain_score + 0.20 * urgency_score + 0.20 * reachability_score,
-        2,
-    )
-
-    # 6. Determine Lead Status and Priority Bucket
-    # Invariant docs/09-final-design-review.md:108: keyword lists aid query planning but never constitute lead qualification truth.
-    # Unassisted baseline keeps lead in DISCOVERED pending model-assisted qualification or operator confirmation.
-    has_model_eval = model_eval is not None or "qualified" in ctx
-    is_qualified_eval = False
-    is_rejected_eval = False
-
-    if has_model_eval:
-        if isinstance(model_eval, dict):
-            if (
-                model_eval.get("qualified") is True
-                or model_eval.get("decision") in ("qualified", "qualify")
-                or model_eval.get("status") == "qualified"
-            ):
-                is_qualified_eval = True
-            elif (
-                model_eval.get("qualified") is False
-                or model_eval.get("decision") in ("rejected", "disqualified")
-                or model_eval.get("status") == "rejected"
-            ):
-                is_rejected_eval = True
-            else:
-                is_qualified_eval = final_score >= 0.70
-        elif isinstance(model_eval, bool):
-            if model_eval:
-                is_qualified_eval = True
-            else:
-                is_rejected_eval = True
-        elif isinstance(model_eval, str):
-            if model_eval.lower() in ("qualified", "qualify", "true"):
-                is_qualified_eval = True
-            elif model_eval.lower() in ("rejected", "disqualified", "false"):
-                is_rejected_eval = True
-        elif "qualified" in ctx:
-            if ctx["qualified"]:
-                is_qualified_eval = True
-            else:
-                is_rejected_eval = True
-
-    lead_id = f"lead_{company_id}"
-    existing_lead = lead_repo.get_lead(lead_id)
-
-    if has_model_eval:
-        if is_qualified_eval:
-            lead_status = LeadStatus.QUALIFIED
-            priority_bucket = 1 if final_score >= 0.85 else 2
-        elif is_rejected_eval or final_score < 0.40:
-            lead_status = LeadStatus.REJECTED
-            priority_bucket = 3
-        else:
-            lead_status = LeadStatus.DISCOVERED
-            priority_bucket = 2
-    else:
-        # Unassisted baseline: never qualifies automatically via keywords or baseline score alone.
-        # Preserve existing progression if already qualified/advanced by operator or model,
-        # otherwise retain DISCOVERED.
-        if existing_lead and existing_lead.status not in (LeadStatus.DISCOVERED, LeadStatus.REJECTED):
-            lead_status = existing_lead.status
-        else:
-            lead_status = LeadStatus.DISCOVERED
-        priority_bucket = 1 if final_score >= 0.85 else (2 if final_score >= 0.50 else 3)
-
-    # Save or update lead
-    if existing_lead:
-        existing_lead.status = lead_status
-        existing_lead.priority_bucket = priority_bucket
-        existing_lead.updated_at = utc_now()
-        lead_repo.save_lead(existing_lead)
-    else:
-        new_lead = Lead(
-            lead_id=lead_id,
-            company_id=company_id,
-            funnel=company.funnel,
-            status=lead_status,
-            priority_bucket=priority_bucket,
-            recommended_service_key=ctx.get("service_key"),
-            created_at=utc_now(),
-            updated_at=utc_now(),
-        )
-        lead_repo.save_lead(new_lead)
-
-    # Append Assessment Snapshot
-    assessment_id = f"asm_{company_id}_{uuid.uuid4().hex[:8]}"
-    provider_identity = (
-        ctx.get("provider_identity")
-        or (model_eval.get("provider_identity") if isinstance(model_eval, dict) else None)
-        or ("model_assisted" if has_model_eval else "deterministic_rules")
-    )
-    confidence = float(
-        ctx.get("confidence")
-        or (model_eval.get("confidence") if isinstance(model_eval, dict) else None)
-        or (1.0 if has_model_eval else 0.60)
-    )
-
-    reasoning_summary = (
-        f"{'Model-assisted qualification' if has_model_eval else 'Unassisted baseline'}: "
-        f"fit={fit_score:.2f}, pain={pain_score:.2f}, "
-        f"urgency={urgency_score:.2f}, reachability={reachability_score:.2f}. Status: {lead_status.value}"
-    )
-
-    assessment = LeadAssessment(
-        assessment_id=assessment_id,
-        lead_id=lead_id,
-        fit_score=fit_score,
-        pain_score=pain_score,
-        urgency_score=urgency_score,
-        reachability_score=reachability_score,
-        final_score=final_score,
-        confidence=confidence,
-        recommended_service_key=ctx.get("service_key"),
-        evidence_ids=evidence_ids,
-        reasoning_summary=reasoning_summary,
-        provider_identity=provider_identity,
-        created_at=utc_now(),
-    )
-    lead_repo.save_assessment(assessment)
 
     return {
         "status": "success",
-        "assessment_id": assessment_id,
-        "company_id": company_id,
-        "lead_id": lead_id,
-        "fit_score": fit_score,
-        "pain_score": pain_score,
-        "urgency_score": urgency_score,
-        "reachability_score": reachability_score,
-        "final_score": final_score,
-        "lead_status": lead_status.value,
-        "priority_bucket": priority_bucket,
-        "reasoning_summary": assessment.reasoning_summary,
+        "assessment_id": res.assessment_id,
+        "company_id": res.company_id,
+        "lead_id": res.lead_id,
+        "fit_score": res.fit_score,
+        "pain_score": res.pain_score,
+        "urgency_score": res.urgency_score,
+        "reachability_score": res.reachability_score,
+        "final_score": res.final_score,
+        "lead_status": res.status.value,
+        "priority_bucket": res.priority_bucket,
+        "reasoning_summary": res.reasoning_summary,
+        "academic_integrity_passed": res.academic_integrity_passed,
+        "confidence": res.confidence,
     }
 
 

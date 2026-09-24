@@ -33,14 +33,14 @@ Foundation milestones completed:
 - Test suite & control plane: Comprehensive unit and integration test suite passing cleanly (62 passed in ~1.3s, 100% pass rate), static control plane checks, hook self-tests, and secret scans all passing.
 - CAPSULE-002 & T-09 External Gates: Independent verification (`verifier`) and acceptance review (`reviewer`) PASSED with zero findings; Heavy Risk Review (`heavy-reviewer`) PASSED (Low residual risk). All repairs (01: qualification truth & dynamic source lookup, 02: deterministic rowid tie-breaker) verified.
 - GitHub repository & Merge: Fast-forward merged `candidate/t09-freelance-adapters` into `main` and pushed to `https://github.com/YazanAi-Dev3/MarketingOS` (tracked on `origin/main`).
-- CAPSULE-003 (Phase 1 Scanner Pipeline & Entity Deduplication): COMPLETED on branch `candidate/phase1-scanner-pipeline`.
-  - `config/country-priorities.yaml`: Production positive geographic allocations configured per M-03 (SA: 0.35, AE: 0.25, QA: 0.10, SY: 0.10, TR: 0.10, BH: 0.03, OM: 0.03, JO: 0.02, LB: 0.02).
-  - `EntityResolver` (`marketing_plugin/services/entity_resolver.py`): Canonical root domain normalization with regional 2nd-level TLD support, multi-lingual name cleaning (Arabic alef/teh marbuta/corporate forms, English LLC/Inc/Ltd, Turkish A.Ş./Ltd. Şti.), and non-destructive identity resolution against `CompanyRepository` (domain 1.0, contact 0.90, name+country 0.85).
-  - `MarketScanner` (`marketing_plugin/services/market_scanner.py`): End-to-end regional discovery orchestrator (RegionalQueryPlanner -> SearXNG -> SSRF-safe page acquisition -> platform/generic extraction -> EntityResolver -> Evidence/Company/Lead persistence) returning `ScanRunSummary`.
-  - Hermes Domain Tool: `marketing_plugin/tools/domain_tools.py` updated with `scan_market` executing `MarketScanner`.
-  - Full test suite: 82 tests passing cleanly (100% pass rate in ~2.2s), including auto-bootstrap verification on fresh database.
+- CAPSULE-003 (Phase 1 Scanner Pipeline & Entity Deduplication): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
+- CAPSULE-004 (Lead Scoring & AI Qualification Engine): COMPLETED on branch `candidate/capsule-004-lead-scoring`.
+  - `LeadScorer` (`marketing_plugin/services/lead_scorer.py`): Multi-factor AI qualification (`M-01` fit, pain, urgency, reachability) integrating Google-only `AntigravityAdapter` reasoning (`A-019`, `T-01`), strict academic integrity enforcement (`A-008`), secret scrubbing (`A-018`, `I-05`), prompt injection resilience, and append-only `LeadAssessment` snapshots with evidence provenance (`A-017`).
+  - Hermes Domain Tool: `marketing_plugin/tools/domain_tools.py` updated with `assess_lead` delegating directly to `LeadScorer`.
+  - Unit & Integration Test Suite: `tests/unit/test_lead_scorer.py` and `tests/integration/test_lead_qualification_pipeline.py` covering synthetic multilingual corpus fixtures, ground truth ranking labels (`LEAD_PRIORITY_RANKING_LABELS`), academic violation rejections, and human approval flow (`request_approval`).
+  - Full test suite: 93 tests passing cleanly (100% pass rate in ~1.8s).
 
 Next immediate steps (Phase 1 / Phase 2 transition):
-1. Lead Scoring & Operator Approval Workflow (Phase 2 bridge: `M-01` AI-weighted fit scoring and Telegram operator bot integration).
+1. Operator Telegram Bot Interface & Interactive Approval Surface (`A-013`, `A-007`).
 2. Phase 2 Content Engine & Multi-Platform Publishing pipeline.
 
