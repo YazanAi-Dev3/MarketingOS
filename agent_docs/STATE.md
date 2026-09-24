@@ -37,14 +37,15 @@ Foundation milestones completed:
 - CAPSULE-004 (Lead Scoring & AI Qualification Engine): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
 - CAPSULE-005 (Telegram Operator Bot & Interactive Approvals): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
 - CAPSULE-006 (Content Engine & Multi-Platform Drafting): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
-- CAPSULE-007 (Social Publishing Scheduler & Postiz Adapter): COMPLETED on candidate branch `candidate/capsule-007-publishing-scheduler`.
-  - `PostizAdapter` (`marketing_plugin/adapters/postiz_adapter.py`): Self-hosted Postiz REST client (A-021) with health checks, channel listing, post scheduling, secret sanitization (A-018, I-05), and hermetic mock mode.
-  - `PublishingService` (`marketing_plugin/services/publishing_service.py`): Orchestrates publication of approved content assets, enforcing strict human approval check against SQLite (A-007, I-02), direct Telegram broadcasting, Postiz dispatch, and graceful manual export fallback when Postiz is offline (R-04).
-  - Hermes Domain Tool: `publish_content` added to `marketing_plugin/tools/domain_tools.py` and exported in package root `marketing_plugin`.
-  - Comprehensive Verification Suite: `tests/unit/test_postiz_adapter.py` (7 tests), `tests/unit/test_publishing_service.py` (6 tests), and `tests/integration/test_publishing_pipeline.py` (3 tests) covering approval gate security, direct Telegram, Postiz automated dispatch, and offline manual export fallback.
-  - Full test suite: 132 tests passing cleanly (100% pass rate in ~2.0s).
+- CAPSULE-007 (Social Publishing Scheduler & Postiz Adapter): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
+- CAPSULE-008 (Conversation Intake & Inbound Lead Qualification): COMPLETED on candidate branch `candidate/capsule-008-conversation-intake`.
+  - `InteractionRepository` (`marketing_plugin/repositories/interaction_repo.py`): Complete CRUD lifecycle and indexing for omnichannel interactions (WhatsApp, Telegram, Email, Web).
+  - `ConversationIntakeService` (`marketing_plugin/services/conversation_intake.py`): Inbound conversational processing, secret scrubbing (A-018, I-05), deterministic academic integrity guard (A-008), entity & lead resolution, intent & dual-funnel classification (A-003), and AI reply draft generation (`actor='agent_draft'`) gated by human approval (A-007, I-02, A-022).
+  - Telegram Operator `/intake` command (`marketing_plugin/services/telegram_operator.py`): Interactive inbound parsing with inline approval keyboard card for immediate operator sign-off.
+  - Hermes Domain Tools: Added `ingest_interaction` and `list_interactions` to `marketing_plugin/tools/domain_tools.py`, expanding `DOMAIN_TOOLS` to 8 tools.
+  - Comprehensive Verification Suite: `tests/unit/test_conversation_intake.py` (5 tests), `tests/integration/test_conversation_intake_pipeline.py` (3 tests), updated `test_domain_tools.py` and `test_telegram_operator.py`. Total test suite: 146 tests passing cleanly (100% pass rate in ~2.8s).
 
 Next immediate steps (Phase 3):
-1. Conversation Intake & Inbound DM Qualification (Telegram / WhatsApp / Email inbound lead capture, intent recognition, entity extraction, and lead pipeline ingestion).
-2. Outbound outreach generation & human approval dispatch.
+1. Outbound outreach generation & follow-up cadence automation with founder approval dispatch (A-007, I-02).
+2. Analytics & CRM export connectors.
 

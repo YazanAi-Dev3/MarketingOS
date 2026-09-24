@@ -62,10 +62,14 @@ class LeadRepository:
         funnel: Optional[FunnelType] = None,
         status: Optional[LeadStatus] = None,
         max_priority_bucket: Optional[int] = None,
+        company_id: Optional[str] = None,
     ) -> List[Lead]:
         """List leads matching criteria, ordered by priority bucket (1 is highest)."""
         query = "SELECT * FROM leads WHERE 1=1"
         params: List[Any] = []
+        if company_id:
+            query += " AND company_id = ?"
+            params.append(company_id)
         if funnel:
             query += " AND funnel = ?"
             params.append(funnel.value)
@@ -80,6 +84,11 @@ class LeadRepository:
         cur = self.conn.cursor()
         cur.execute(query, params)
         return [self._row_to_lead(row) for row in cur.fetchall()]
+
+    def get_lead_by_company(self, company_id: str) -> Optional[Lead]:
+        """Fetch the most relevant lead for a company."""
+        leads = self.list_leads(company_id=company_id)
+        return leads[0] if leads else None
 
     def save_assessment(self, assessment: LeadAssessment) -> None:
         """Append a new assessment snapshot for a lead."""

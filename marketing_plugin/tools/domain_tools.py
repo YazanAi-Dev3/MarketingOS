@@ -23,9 +23,11 @@ from marketing_plugin.repositories.approval_repo import ApprovalRepository
 from marketing_plugin.repositories.company_repo import CompanyRepository
 from marketing_plugin.repositories.database import Database
 from marketing_plugin.repositories.evidence_repo import EvidenceRepository
+from marketing_plugin.repositories.interaction_repo import InteractionRepository
 from marketing_plugin.repositories.lead_repo import LeadRepository
 from marketing_plugin.repositories.source_repo import SourceRepository
 from marketing_plugin.services.content_engine import ContentEngine
+from marketing_plugin.services.conversation_intake import ConversationIntakeService
 from marketing_plugin.services.lead_scorer import LeadScorer, LeadScorerResult
 from marketing_plugin.services.market_scanner import MarketScanner, ScanRunSummary
 from marketing_plugin.services.publishing_service import PublishingService
@@ -503,6 +505,97 @@ def publish_content(
         }
 
 
+def ingest_interaction(
+    channel: str,
+    sender_ref: str,
+    message: str,
+    country_code: Optional[str] = None,
+    sender_name: Optional[str] = None,
+    company_name: Optional[str] = None,
+    auto_request_approval: bool = True,
+    db: Optional[Database] = None,
+) -> Dict[str, Any]:
+    """Ingests an inbound interaction across channels (WhatsApp, Telegram, Email, Web).
+
+    Performs secret scrubbing (A-018, I-05), checks academic integrity (A-008),
+    resolves company and lead, generates a proposed AI reply draft (actor='agent_draft'),
+    and registers human approval request if enabled (A-007, I-02, A-022).
+
+    Args:
+        channel: Channel key ('whatsapp', 'telegram', 'email', 'web').
+        sender_ref: Contact identifier (phone, email, username).
+        message: Raw incoming message text.
+        country_code: Country ISO code (default: 'SA').
+        sender_name: Optional sender name.
+        company_name: Optional company name.
+        auto_request_approval: Whether to generate an approval request for reply.
+        db: Optional Database manager instance.
+    """
+    database = _get_db(db)
+    service = ConversationIntakeService(db=database)
+    outcome = service.ingest_message(
+        channel=channel,
+        external_party_ref=sender_ref,
+        message_text=message,
+        country_code=country_code,
+        sender_name=sender_name,
+        company_name=company_name,
+        auto_request_approval=auto_request_approval,
+    )
+    return {
+        "status": "success" if outcome.success else "failed",
+        "interaction_id": outcome.interaction_id,
+        "lead_id": outcome.lead_id,
+        "company_id": outcome.company_id,
+        "channel": outcome.channel,
+        "funnel": outcome.funnel,
+        "intent": outcome.intent,
+        "is_academic_violation": outcome.is_academic_violation,
+        "suggested_reply": outcome.suggested_reply,
+        "approval_id": outcome.approval_id,
+        "intake_status": outcome.status,
+        "reasoning": outcome.reasoning,
+    }
+
+
+def list_interactions(
+    lead_id: Optional[str] = None,
+    channel: Optional[str] = None,
+    limit: int = 50,
+    db: Optional[Database] = None,
+) -> List[Dict[str, Any]]:
+    """Lists interactions filtered by lead ID or channel.
+
+    Args:
+        lead_id: Optional Lead ID filter.
+        channel: Optional Channel filter.
+        limit: Max interactions to return (default: 50).
+        db: Optional Database manager instance.
+    """
+    database = _get_db(db)
+    conn = database.connect()
+    repo = InteractionRepository(conn)
+    interactions = repo.list_interactions(
+        lead_id=lead_id,
+        channel=channel,
+        limit=limit,
+    )
+    return [
+        {
+            "interaction_id": i.interaction_id,
+            "lead_id": i.lead_id,
+            "channel": i.channel,
+            "external_party_ref": i.external_party_ref,
+            "direction": i.direction.value if hasattr(i.direction, "value") else str(i.direction),
+            "actor": i.actor.value if hasattr(i.actor, "value") else str(i.actor),
+            "content_summary": i.content_summary,
+            "outcome_tag": i.outcome_tag,
+            "occurred_at": i.occurred_at.isoformat() if i.occurred_at else None,
+        }
+        for i in interactions
+    ]
+
+
 DOMAIN_TOOLS: List[Callable[..., Any]] = [
     scan_market,
     assess_lead,
@@ -510,4 +603,6 @@ DOMAIN_TOOLS: List[Callable[..., Any]] = [
     request_approval,
     generate_content,
     publish_content,
+    ingest_interaction,
+    list_interactions,
 ]

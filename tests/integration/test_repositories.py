@@ -8,6 +8,7 @@ from marketing_plugin.repositories.company_repo import CompanyRepository
 from marketing_plugin.repositories.content_repo import ContentRepository
 from marketing_plugin.repositories.database import Database
 from marketing_plugin.repositories.evidence_repo import EvidenceRepository
+from marketing_plugin.repositories.interaction_repo import InteractionRepository
 from marketing_plugin.repositories.lead_repo import LeadRepository
 from marketing_plugin.repositories.source_repo import SourceRepository
 from schemas.models import (
@@ -64,6 +65,7 @@ class TestRepositories(unittest.TestCase):
         self.approval_repo = ApprovalRepository(self.conn)
         self.agent_run_repo = AgentRunRepository(self.conn)
         self.content_repo = ContentRepository(self.conn)
+        self.interaction_repo = InteractionRepository(self.conn)
 
 
     def tearDown(self):
@@ -455,6 +457,57 @@ class TestRepositories(unittest.TestCase):
         # List assets
         assets = self.content_repo.list_assets(idea_id="idea-integ-01")
         self.assertEqual(len(assets), 1)
+
+    def test_interaction_repository_lifecycle(self):
+        """Verifies InteractionRepository operations for inbound and outbound messages."""
+        # Seed company and lead
+        comp = Company(
+            company_id="comp-inter-01",
+            canonical_name="Logistics Tech Co",
+            country_code="SA",
+            funnel=FunnelType.B2B,
+        )
+        self.company_repo.save_company(comp)
+
+        lead = Lead(
+            lead_id="lead-inter-01",
+            company_id="comp-inter-01",
+            funnel=FunnelType.B2B,
+            status=LeadStatus.DISCOVERED,
+        )
+        self.lead_repo.save_lead(lead)
+
+        # Inbound interaction
+        inbound = Interaction(
+            interaction_id="inter-001",
+            lead_id="lead-inter-01",
+            channel="whatsapp",
+            external_party_ref="+966501234567",
+            direction=InteractionDirection.INBOUND,
+            actor=ActorType.EXTERNAL,
+            content_summary="Inquiry about automated WMS integration",
+            outcome_tag="inquiry",
+        )
+        self.interaction_repo.save_interaction(inbound)
+
+        fetched = self.interaction_repo.get_interaction("inter-001")
+        self.assertIsNotNone(fetched)
+        self.assertEqual(fetched.channel, "whatsapp")
+        self.assertEqual(fetched.external_party_ref, "+966501234567")
+        self.assertEqual(fetched.direction, InteractionDirection.INBOUND)
+        self.assertEqual(fetched.actor, ActorType.EXTERNAL)
+
+        # Update outcome tag
+        updated = self.interaction_repo.update_outcome("inter-001", "meeting_requested")
+        self.assertTrue(updated)
+        self.assertEqual(self.interaction_repo.get_interaction("inter-001").outcome_tag, "meeting_requested")
+
+        # List interactions with filters
+        wa_interactions = self.interaction_repo.list_interactions(channel="whatsapp")
+        self.assertEqual(len(wa_interactions), 1)
+
+        tg_interactions = self.interaction_repo.list_interactions(channel="telegram")
+        self.assertEqual(len(tg_interactions), 0)
 
 
 if __name__ == "__main__":

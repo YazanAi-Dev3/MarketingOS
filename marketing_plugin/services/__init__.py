@@ -19,6 +19,10 @@ from marketing_plugin.services.lead_scorer import (
     LeadScorer,
     LeadScorerResult,
 )
+from marketing_plugin.services.conversation_intake import (
+    ConversationIntakeService,
+    IntakeOutcome,
+)
 from marketing_plugin.services.publishing_service import (
     DispatchResult,
     PublishingService,
@@ -32,6 +36,8 @@ from marketing_plugin.services.telegram_operator import (
 
 __all__ = [
     "ContentEngine",
+    "ConversationIntakeService",
+    "IntakeOutcome",
     "DispatchResult",
     "EntityResolver",
     "ResolutionOutcome",

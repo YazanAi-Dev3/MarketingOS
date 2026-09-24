@@ -9,6 +9,7 @@ from marketing_plugin.repositories.company_repo import CompanyRepository
 from marketing_plugin.repositories.content_repo import ContentRepository
 from marketing_plugin.repositories.database import Database
 from marketing_plugin.repositories.evidence_repo import EvidenceRepository
+from marketing_plugin.repositories.interaction_repo import InteractionRepository
 from marketing_plugin.repositories.lead_repo import LeadRepository
 from marketing_plugin.repositories.source_repo import SourceRepository
 
@@ -19,6 +20,7 @@ __all__ = [
     "CompanyRepository",
     "ContentRepository",
     "EvidenceRepository",
+    "InteractionRepository",
     "LeadRepository",
     "SourceRepository",
 ]

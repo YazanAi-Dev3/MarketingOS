@@ -120,6 +120,8 @@ class TelegramOperatorService:
             return self._cmd_direct_resolve(approval_id=args[0], decision=ApprovalDecision.APPROVED, actor_id=str(user_id))
         elif cmd == "/reject" and args:
             return self._cmd_direct_resolve(approval_id=args[0], decision=ApprovalDecision.REJECTED, actor_id=str(user_id))
+        elif cmd == "/intake":
+            return self._cmd_intake(args)
         else:
             return CommandResponse(
                 text=f"⚠️ أمر غير معروف: `{cmd}`.\nاكتب /help للاطلاع على قائمة الأوامر المتاحة.",
@@ -297,6 +299,7 @@ class TelegramOperatorService:
             "• `/pending` - استعراض كافة طلبات الاعتماد المعلقة مع أزرار الإجراء.\n"
             "• `/approve <ID>` - اعتماد طلب مباشرة عبر المعرّف.\n"
             "• `/reject <ID>` - رفض طلب مباشرة عبر المعرّف.\n"
+            "• `/intake <القناة> <المرسل> <الرسالة>` - تسجيل محادثة واردة وتأهيل العميل آلياً.\n"
             "• `/help` - عرض هذه القائمة.\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🔒 *حدود الصلاحية:* الأوامر محصورة في المشرفين المعتمدين فقط (`A-026`)."
@@ -418,6 +421,80 @@ class TelegramOperatorService:
         verb = "اعتماد" if decision == ApprovalDecision.APPROVED else "رفض"
         return CommandResponse(
             text=f"✅ تم {verb} الطلب `{approval_id}` بنجاح بواسطة المشرف `{actor_id}`.",
+            success=True,
+        )
+
+    def _cmd_intake(self, args: List[str]) -> CommandResponse:
+        """Processes inbound message, qualifies lead, drafts reply, and renders approval card."""
+        if len(args) < 3:
+            return CommandResponse(
+                text=(
+                    "ℹ️ *طريقة استخدام أمر إدخال المحادثات الواردة (/intake):*\n"
+                    "`/intake <القناة> <معرف_المرسل> <نص_الرسالة>`\n\n"
+                    "*أمثلة:*\n"
+                    "• `/intake whatsapp +966501234567 نحتاج نظام أتمتة للمبيعات والفواتير`\n"
+                    "• `/intake telegram @researcher أحتاج استشارة في التحليل الإحصائي للماجستير`\n"
+                    "• `/intake email client@company.com نود مناقشة مشروع برمجة متجر إلكتروني`\n\n"
+                    "🔒 *ملاحظة السياسات:* يتم فحص النزاهة الأكاديمية (A-008) وإخفاء الأسرار تلقائياً (I-05)."
+                ),
+                success=False,
+            )
+
+        channel = args[0]
+        sender_ref = args[1]
+        message_text = " ".join(args[2:])
+
+        from marketing_plugin.services.conversation_intake import ConversationIntakeService
+        service = ConversationIntakeService(db=self.db)
+        outcome = service.ingest_message(
+            channel=channel,
+            external_party_ref=sender_ref,
+            message_text=message_text,
+            auto_request_approval=True,
+        )
+
+        if outcome.is_academic_violation:
+            text = (
+                "⛔ *تنبيه: تم رصد مخالفة لمعايير النزاهة الأكاديمية (A-008)*\n"
+                "━━━━━━━━━━━━━━━━━━━━\n"
+                f"• *القناة:* `{channel.upper()}`\n"
+                f"• *المرسل:* `{sender_ref}`\n"
+                f"• *الإجراء المتخذ:* تم استبعاد العميل تلقائياً (`REJECTED`) وتسجيل المخالفة.\n"
+                f"• *معرّف التفاعل:* `{outcome.interaction_id}`\n\n"
+                f"📋 *مسودة الرد الأخلاقي المقترح:*\n"
+                f"_{outcome.suggested_reply}_\n"
+                "━━━━━━━━━━━━━━━━━━━━\n"
+                "⚠️ *ملاحظة:* تم إيقاف أي إجراءات تسويقية لهذا الطلب بموجب السياسة A-008."
+            )
+            return CommandResponse(text=text, success=True)
+
+        approval_conn = self.db.connect()
+        company_repo = CompanyRepository(approval_conn)
+        company = company_repo.get_company(outcome.company_id) if outcome.company_id else None
+        comp_name = company.canonical_name if company else "عميل محتمل"
+
+        text = (
+            "📥 *تم استقبال محادثة واردة وتأهيل العميل بنجاح*\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            f"• *الجهة / العميل:* *{comp_name}*\n"
+            f"• *القناة:* `{channel.upper()}` | *المرسل:* `{sender_ref}`\n"
+            f"• *مسار العمل (Funnel):* `{outcome.funnel.upper()}` | *النية:* `{outcome.intent}`\n"
+            f"• *معرّف العميل:* `{outcome.lead_id}`\n"
+            f"• *معرّف التفاعل:* `{outcome.interaction_id}`\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "💬 *مسودة الرد المقترحة (مسودة AI - بانتظار الاعتماد):*\n"
+            f"_{outcome.suggested_reply}_\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "⚠️ *السياسة A-007 / A-022:* يتطلب الرد موافقة المشغل البشري قبل إرساله."
+        )
+
+        reply_markup = None
+        if outcome.approval_id:
+            reply_markup = self.build_approval_keyboard(outcome.approval_id)
+
+        return CommandResponse(
+            text=text,
+            reply_markup=reply_markup,
             success=True,
         )
 

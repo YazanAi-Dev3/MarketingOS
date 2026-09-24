@@ -12,6 +12,8 @@ from marketing_plugin import (
     DOMAIN_TOOLS,
     assess_lead,
     generate_content,
+    ingest_interaction,
+    list_interactions,
     list_leads,
     publish_content,
     request_approval,
@@ -71,8 +73,8 @@ class TestDomainTools(unittest.TestCase):
     # --- Tool Registration Tests ---
 
     def test_tool_registration(self):
-        """Ensure all 6 domain tools are exported in DOMAIN_TOOLS and package namespace."""
-        self.assertEqual(len(DOMAIN_TOOLS), 6)
+        """Ensure all 8 domain tools are exported in DOMAIN_TOOLS and package namespace."""
+        self.assertEqual(len(DOMAIN_TOOLS), 8)
         tool_names = [t.__name__ for t in DOMAIN_TOOLS]
         self.assertIn("scan_market", tool_names)
         self.assertIn("assess_lead", tool_names)
@@ -80,6 +82,8 @@ class TestDomainTools(unittest.TestCase):
         self.assertIn("request_approval", tool_names)
         self.assertIn("generate_content", tool_names)
         self.assertIn("publish_content", tool_names)
+        self.assertIn("ingest_interaction", tool_names)
+        self.assertIn("list_interactions", tool_names)
 
     # --- scan_market Tests ---
 
@@ -429,4 +433,50 @@ class TestDomainTools(unittest.TestCase):
         pub_res = publish_content(asset_id=asset_id, db=self.db)
         self.assertEqual(pub_res["status"], "success")
         self.assertEqual(pub_res["publication_status"], "published")
+
+    # --- ingest_interaction and list_interactions Tests ---
+
+    def test_ingest_interaction_b2b_creates_lead_and_approval(self):
+        """Verify ingest_interaction processes inbound B2B message, creates lead, and queues approval."""
+        res = ingest_interaction(
+            channel="whatsapp",
+            sender_ref="+966501234567",
+            message="السلام عليكم، نحتاج نظام أتمتة لإدارة الفواتير والمخزون",
+            company_name="Saudi Logistics Corp",
+            country_code="SA",
+            auto_request_approval=True,
+            db=self.db,
+        )
+
+        self.assertEqual(res["status"], "success")
+        self.assertEqual(res["channel"], "whatsapp")
+        self.assertEqual(res["funnel"], "b2b")
+        self.assertEqual(res["intent"], "b2b_inquiry")
+        self.assertFalse(res["is_academic_violation"])
+        self.assertIsNotNone(res["lead_id"])
+        self.assertIsNotNone(res["approval_id"])
+        self.assertIn("IntelliFY", res["suggested_reply"])
+
+        # Check interaction was persisted
+        interactions = list_interactions(lead_id=res["lead_id"], db=self.db)
+        self.assertGreaterEqual(len(interactions), 1)
+        self.assertEqual(interactions[0]["channel"], "whatsapp")
+
+    def test_ingest_interaction_academic_violation_rejection(self):
+        """Verify ingest_interaction rejects cheating/ghostwriting deterministically per A-008."""
+        res = ingest_interaction(
+            channel="telegram",
+            sender_ref="@student_123",
+            message="أريد حل امتحان وإجراء الاختبار نيابة عني",
+            country_code="SA",
+            db=self.db,
+        )
+
+        self.assertEqual(res["status"], "success")
+        self.assertTrue(res["is_academic_violation"])
+        self.assertEqual(res["intent"], "academic_violation")
+        self.assertIsNone(res["approval_id"])
+        self.assertEqual(res["intake_status"], "rejected_academic_violation")
+        self.assertIn("النزاهة الأكاديمية", res["suggested_reply"])
+
 

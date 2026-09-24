@@ -305,6 +305,43 @@ class TestTelegramOperatorService(unittest.TestCase):
         self.assertEqual(self.approval_repo.get_approval("appr_cmd_01").decision, ApprovalDecision.APPROVED)
         self.assertEqual(self.approval_repo.get_approval("appr_cmd_02").decision, ApprovalDecision.REJECTED)
 
+    # --- /intake Command Tests ---
+
+    def test_intake_command_missing_args(self):
+        """Verify /intake with insufficient arguments prints usage guidance."""
+        res = self.service.handle_command("/intake", user_id="1001", chat_id="5001")
+        self.assertFalse(res.success)
+        self.assertIn("طريقة استخدام أمر إدخال المحادثات الواردة", res.text)
+
+    def test_intake_command_b2b_renders_approval_card(self):
+        """Verify /intake creates lead, saves interaction, and returns interactive approval card."""
+        cmd = "/intake whatsapp +966501234567 نحتاج أتمتة لنظام الفواتير والمخزون في الرياض"
+        res = self.service.handle_command(cmd, user_id="1001", chat_id="5001")
+
+        self.assertTrue(res.success)
+        self.assertIn("تم استقبال محادثة واردة وتأهيل العميل بنجاح", res.text)
+        self.assertIn("WHATSAPP", res.text)
+        self.assertIn("+966501234567", res.text)
+        self.assertIn("B2B", res.text)
+        self.assertIsNotNone(res.reply_markup)
+        self.assertIn("inline_keyboard", res.reply_markup)
+
+        # Check inline keyboard buttons
+        buttons = res.reply_markup["inline_keyboard"][0]
+        self.assertTrue(any("موافقة" in b["text"] for b in buttons))
+        self.assertTrue(any("رفض" in b["text"] for b in buttons))
+
+    def test_intake_command_academic_violation(self):
+        """Verify /intake immediately detects cheating inquiry and blocks marketing approval."""
+        cmd = "/intake telegram @cheater_boy مطلوب حل امتحان ماجستير كامل نيابة عني"
+        res = self.service.handle_command(cmd, user_id="1001", chat_id="5001")
+
+        self.assertTrue(res.success)
+        self.assertIn("تم رصد مخالفة لمعايير النزاهة الأكاديمية", res.text)
+        self.assertIn("REJECTED", res.text)
+        self.assertIsNone(res.reply_markup)
+
 
 if __name__ == "__main__":
     unittest.main()
+
