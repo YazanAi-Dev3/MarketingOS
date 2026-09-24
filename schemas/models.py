@@ -304,3 +304,29 @@ class AgentRun(BaseModel):
     error_class: Optional[str] = None
     approval_required: bool = False
 
+
+class OutreachStepType(str, Enum):
+    INITIAL_PITCH = "initial_pitch"
+    VALUE_CASE = "value_case"
+    BREAKAWAY = "breakaway"
+
+
+class OutreachMessage(BaseModel):
+    step_number: int
+    step_type: OutreachStepType
+    channel: str
+    subject: Optional[str] = None
+    body: str
+    cta: str
+    delay_days: int = 0
+
+
+class OutreachCadencePlan(BaseModel):
+    cadence_id: str
+    lead_id: str
+    company_id: str
+    channel: str
+    messages: List[OutreachMessage] = Field(default_factory=list)
+    approval_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=utc_now)
+

@@ -12,10 +12,12 @@ from marketing_plugin import (
     DOMAIN_TOOLS,
     assess_lead,
     generate_content,
+    generate_outreach,
     ingest_interaction,
     list_interactions,
     list_leads,
     publish_content,
+    record_contact_attempt,
     request_approval,
     scan_market,
 )
@@ -73,8 +75,8 @@ class TestDomainTools(unittest.TestCase):
     # --- Tool Registration Tests ---
 
     def test_tool_registration(self):
-        """Ensure all 8 domain tools are exported in DOMAIN_TOOLS and package namespace."""
-        self.assertEqual(len(DOMAIN_TOOLS), 8)
+        """Ensure all 10 domain tools are exported in DOMAIN_TOOLS and package namespace."""
+        self.assertEqual(len(DOMAIN_TOOLS), 10)
         tool_names = [t.__name__ for t in DOMAIN_TOOLS]
         self.assertIn("scan_market", tool_names)
         self.assertIn("assess_lead", tool_names)
@@ -84,6 +86,8 @@ class TestDomainTools(unittest.TestCase):
         self.assertIn("publish_content", tool_names)
         self.assertIn("ingest_interaction", tool_names)
         self.assertIn("list_interactions", tool_names)
+        self.assertIn("generate_outreach", tool_names)
+        self.assertIn("record_contact_attempt", tool_names)
 
     # --- scan_market Tests ---
 
@@ -478,5 +482,79 @@ class TestDomainTools(unittest.TestCase):
         self.assertIsNone(res["approval_id"])
         self.assertEqual(res["intake_status"], "rejected_academic_violation")
         self.assertIn("النزاهة الأكاديمية", res["suggested_reply"])
+
+    def test_generate_outreach_tool(self):
+        """Verify generate_outreach domain tool produces a 3-step cadence with approval."""
+        # Seed company and lead
+        company = Company(
+            company_id="comp_tool_outreach_01",
+            canonical_name="شركة الرياض لحلول المستودعات",
+            primary_domain="riyadh-warehouses.sa",
+            country_code="SA",
+            sector="اللوجستيات",
+            funnel=FunnelType.B2B,
+        )
+        self.company_repo.save_company(company)
+
+        lead = Lead(
+            lead_id="lead_tool_outreach_01",
+            company_id="comp_tool_outreach_01",
+            funnel=FunnelType.B2B,
+            status=LeadStatus.QUALIFIED,
+        )
+        self.lead_repo.save_lead(lead)
+
+        res = generate_outreach(
+            lead_id="lead_tool_outreach_01",
+            channel="email",
+            auto_request_approval=True,
+            db=self.db,
+        )
+
+        self.assertEqual(res["status"], "success")
+        self.assertEqual(res["lead_id"], "lead_tool_outreach_01")
+        self.assertEqual(res["company_id"], "comp_tool_outreach_01")
+        self.assertEqual(res["channel"], "email")
+        self.assertEqual(res["message_count"], 3)
+        self.assertEqual(len(res["messages"]), 3)
+        self.assertIsNotNone(res["approval_id"])
+
+        # Check lead was updated to OUTREACH_READY
+        updated_lead = self.lead_repo.get_lead("lead_tool_outreach_01")
+        self.assertEqual(updated_lead.status, LeadStatus.OUTREACH_READY)
+
+    def test_record_contact_attempt_tool(self):
+        """Verify record_contact_attempt domain tool transitions lead to CONTACTED."""
+        company = Company(
+            company_id="comp_tool_contact_01",
+            canonical_name="مؤسسة التقنية المتقدمة",
+            primary_domain="tech-advanced.sa",
+            country_code="SA",
+            funnel=FunnelType.B2B,
+        )
+        self.company_repo.save_company(company)
+
+        lead = Lead(
+            lead_id="lead_tool_contact_01",
+            company_id="comp_tool_contact_01",
+            funnel=FunnelType.B2B,
+            status=LeadStatus.OUTREACH_READY,
+        )
+        self.lead_repo.save_lead(lead)
+
+        res = record_contact_attempt(
+            lead_id="lead_tool_contact_01",
+            channel="whatsapp",
+            actor_id="operator_yazan",
+            notes="Contacted via WhatsApp with customized deck",
+            db=self.db,
+        )
+
+        self.assertEqual(res["status"], "success")
+        self.assertTrue(res["updated"])
+
+        updated_lead = self.lead_repo.get_lead("lead_tool_contact_01")
+        self.assertEqual(updated_lead.status, LeadStatus.CONTACTED)
+        self.assertEqual(updated_lead.next_action, "awaiting_lead_reply")
 
 

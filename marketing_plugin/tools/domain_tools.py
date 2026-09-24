@@ -596,6 +596,105 @@ def list_interactions(
     ]
 
 
+def generate_outreach(
+    lead_id: str,
+    channel: str = "email",
+    auto_request_approval: bool = True,
+    db: Optional[Database] = None,
+) -> Dict[str, Any]:
+    """Generates an evidence-grounded 3-step outbound follow-up cadence for a lead.
+
+    Enforces academic integrity (A-008), secret scrubbing (A-018, I-05), and
+    human approval gating (A-007, I-02, A-022).
+
+    Args:
+        lead_id: Identifier of the qualified lead.
+        channel: Communication channel ('email', 'whatsapp', 'linkedin').
+        auto_request_approval: Whether to create pending approval in ApprovalRepository.
+        db: Optional Database manager instance.
+
+    Returns:
+        Dictionary summarizing the generated cadence, messages, and approval ID.
+    """
+    from marketing_plugin.services.outbound_engine import OutboundEngine
+
+    database = _get_db(db)
+    engine = OutboundEngine(db=database)
+    try:
+        plan = engine.generate_cadence(
+            lead_id=lead_id,
+            channel=channel,
+            auto_request_approval=auto_request_approval,
+        )
+        return {
+            "status": "success",
+            "cadence_id": plan.cadence_id,
+            "lead_id": plan.lead_id,
+            "company_id": plan.company_id,
+            "channel": plan.channel,
+            "message_count": len(plan.messages),
+            "messages": [
+                {
+                    "step_number": m.step_number,
+                    "step_type": m.step_type.value,
+                    "channel": m.channel,
+                    "subject": m.subject,
+                    "body": m.body,
+                    "cta": m.cta,
+                    "delay_days": m.delay_days,
+                }
+                for m in plan.messages
+            ],
+            "approval_id": plan.approval_id,
+        }
+    except Exception as exc:
+        logger.error("Failed to generate outreach cadence for lead %s: %s", lead_id, exc)
+        return {
+            "status": "error",
+            "lead_id": lead_id,
+            "error": str(exc),
+        }
+
+
+def record_contact_attempt(
+    lead_id: str,
+    channel: str,
+    actor_id: Optional[str] = None,
+    notes: Optional[str] = None,
+    db: Optional[Database] = None,
+) -> Dict[str, Any]:
+    """Records that an outreach touchpoint was sent to a lead, updating status to CONTACTED.
+
+    Enforces closed-loop lead tracking (M-01, M-12).
+
+    Args:
+        lead_id: Identifier of the lead.
+        channel: Delivery channel used.
+        actor_id: Human operator / founder identifier.
+        notes: Optional notes on the dispatch.
+        db: Optional Database manager instance.
+
+    Returns:
+        Dictionary with update status and lead ID.
+    """
+    from marketing_plugin.services.outbound_engine import OutboundEngine
+
+    database = _get_db(db)
+    engine = OutboundEngine(db=database)
+    success = engine.record_contact_attempt(
+        lead_id=lead_id,
+        channel=channel,
+        actor_id=actor_id or "founder",
+        notes=notes,
+    )
+    return {
+        "status": "success" if success else "failed",
+        "lead_id": lead_id,
+        "channel": channel,
+        "updated": success,
+    }
+
+
 DOMAIN_TOOLS: List[Callable[..., Any]] = [
     scan_market,
     assess_lead,
@@ -605,4 +704,6 @@ DOMAIN_TOOLS: List[Callable[..., Any]] = [
     publish_content,
     ingest_interaction,
     list_interactions,
+    generate_outreach,
+    record_contact_attempt,
 ]

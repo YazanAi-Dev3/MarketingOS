@@ -122,6 +122,8 @@ class TelegramOperatorService:
             return self._cmd_direct_resolve(approval_id=args[0], decision=ApprovalDecision.REJECTED, actor_id=str(user_id))
         elif cmd == "/intake":
             return self._cmd_intake(args)
+        elif cmd == "/outreach":
+            return self._cmd_outreach(args, user_id=user_id)
         else:
             return CommandResponse(
                 text=f"⚠️ أمر غير معروف: `{cmd}`.\nاكتب /help للاطلاع على قائمة الأوامر المتاحة.",
@@ -224,6 +226,16 @@ class TelegramOperatorService:
                 error="Failed to persist approval resolution",
             )
 
+        # If outreach is approved, advance lead lifecycle to CONTACTED (M-01)
+        if target_decision == ApprovalDecision.APPROVED and approval.action_type == "outreach_send" and approval.target_type == "lead":
+            lead_repo = LeadRepository(conn)
+            lead = lead_repo.get_lead(approval.target_id)
+            if lead and lead.status == LeadStatus.OUTREACH_READY:
+                lead.status = LeadStatus.CONTACTED
+                lead.next_action = "awaiting_lead_reply"
+                lead.updated_at = datetime.now(timezone.utc)
+                lead_repo.save_lead(lead)
+
         updated_approval = approval_repo.get_approval(approval_id)
         msg_text = self._format_resolved_message(updated_approval or approval)
         decision_labels = {
@@ -300,6 +312,7 @@ class TelegramOperatorService:
             "• `/approve <ID>` - اعتماد طلب مباشرة عبر المعرّف.\n"
             "• `/reject <ID>` - رفض طلب مباشرة عبر المعرّف.\n"
             "• `/intake <القناة> <المرسل> <الرسالة>` - تسجيل محادثة واردة وتأهيل العميل آلياً.\n"
+            "• `/outreach <معرّف_العميل> [القناة]` - توليد حملة تواصل مخصصة وعرض مسودة الخطوة الأولى للاعتماد.\n"
             "• `/help` - عرض هذه القائمة.\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🔒 *حدود الصلاحية:* الأوامر محصورة في المشرفين المعتمدين فقط (`A-026`)."
@@ -418,6 +431,15 @@ class TelegramOperatorService:
             notes=f"Resolved via direct Telegram command by {actor_id}",
         )
 
+        if decision == ApprovalDecision.APPROVED and approval.action_type == "outreach_send" and approval.target_type == "lead":
+            lead_repo = LeadRepository(conn)
+            lead = lead_repo.get_lead(approval.target_id)
+            if lead and lead.status == LeadStatus.OUTREACH_READY:
+                lead.status = LeadStatus.CONTACTED
+                lead.next_action = "awaiting_lead_reply"
+                lead.updated_at = datetime.now(timezone.utc)
+                lead_repo.save_lead(lead)
+
         verb = "اعتماد" if decision == ApprovalDecision.APPROVED else "رفض"
         return CommandResponse(
             text=f"✅ تم {verb} الطلب `{approval_id}` بنجاح بواسطة المشرف `{actor_id}`.",
@@ -491,6 +513,87 @@ class TelegramOperatorService:
         reply_markup = None
         if outcome.approval_id:
             reply_markup = self.build_approval_keyboard(outcome.approval_id)
+
+        return CommandResponse(
+            text=text,
+            reply_markup=reply_markup,
+            success=True,
+        )
+
+    def _cmd_outreach(self, args: List[str], user_id: int | str) -> CommandResponse:
+        """Generates outbound personalized cadence for a lead and renders interactive approval card."""
+        if not args:
+            return CommandResponse(
+                text=(
+                    "ℹ️ *طريقة استخدام أمر حملات التواصل (/outreach):*\n"
+                    "`/outreach <معرّف_العميل> [القناة]`\n\n"
+                    "*أمثلة:*\n"
+                    "• `/outreach lead_sa_1 email`\n"
+                    "• `/outreach lead_sa_2 whatsapp`\n"
+                    "• `/outreach lead_ae_3 linkedin`\n\n"
+                    "🔒 *السياسة A-007:* يتم إنشاء مسودة الرسائل وطلب الاعتماد البشري دون إرسال آلي."
+                ),
+                success=False,
+            )
+
+        lead_id = args[0].strip()
+        channel = args[1].strip() if len(args) > 1 else "email"
+
+        conn = self.db.connect()
+        lead_repo = LeadRepository(conn)
+        lead = lead_repo.get_lead(lead_id)
+        if not lead:
+            return CommandResponse(
+                text=f"❌ العميل `{lead_id}` غير موجود في قاعدة البيانات.",
+                success=False,
+            )
+
+        from marketing_plugin.services.outbound_engine import OutboundEngine
+
+        engine = OutboundEngine(db=self.db)
+        try:
+            plan = engine.generate_cadence(lead_id=lead_id, channel=channel, auto_request_approval=True)
+        except Exception as exc:
+            return CommandResponse(
+                text=f"❌ تعذر إنشاء حملة التواصل للعميل `{lead_id}`: {exc}",
+                success=False,
+                error=str(exc),
+            )
+
+        step1 = plan.messages[0] if plan.messages else None
+        company_repo = CompanyRepository(conn)
+        company = company_repo.get_company(plan.company_id) if plan.company_id else None
+        comp_name = company.canonical_name if company else plan.company_id
+
+        text = (
+            f"🚀 *مقترح حملة تواصل خارجي (Outbound Cadence Proposal)*\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"• *الجهة / العميل:* *{comp_name}*\n"
+            f"• *معرّف العميل:* `{lead_id}`\n"
+            f"• *القناة المستهدفة:* `{channel.upper()}`\n"
+            f"• *عدد الخطوات المبرمجة:* {len(plan.messages)} رسائل متتابعة\n"
+            f"• *معرّف الحملة:* `{plan.cadence_id}`\n"
+        )
+        if plan.approval_id:
+            text += f"• *رقم طلب الاعتماد:* `{plan.approval_id}`\n"
+
+        if step1:
+            text += (
+                f"━━━━━━━━━━━━━━━━━━━━\n"
+                f"📨 *مسودة الخطوة 1 (اليوم 0 - Hook & Evidence):*\n"
+            )
+            if step1.subject:
+                text += f"*الموضوع:* {step1.subject}\n\n"
+            text += (
+                f"_{step1.body}_\n\n"
+                f"*الدعوة للإجراء (CTA):* {step1.cta}\n"
+                f"━━━━━━━━━━━━━━━━━━━━\n"
+                f"⚠️ *السياسة A-007 / A-022:* يتطلب إرسال التواصل موافقة المشغل البشري الصريحة."
+            )
+
+        reply_markup = None
+        if plan.approval_id:
+            reply_markup = self.build_approval_keyboard(plan.approval_id)
 
         return CommandResponse(
             text=text,

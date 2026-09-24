@@ -34,6 +34,9 @@ from marketing_plugin.services.telegram_operator import (
     TelegramOperatorService,
 )
 
+from marketing_plugin.services.outbound_engine import OutboundEngine
+from schemas.models import OutreachCadencePlan, OutreachMessage, OutreachStepType
+
 __all__ = [
     "ContentEngine",
     "ConversationIntakeService",
@@ -45,6 +48,10 @@ __all__ = [
     "ScanRunSummary",
     "LeadScorer",
     "LeadScorerResult",
+    "OutboundEngine",
+    "OutreachCadencePlan",
+    "OutreachMessage",
+    "OutreachStepType",
     "PublishingService",
     "TelegramOperatorService",
     "TelegramOperatorConfig",

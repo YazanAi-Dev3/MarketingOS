@@ -38,14 +38,15 @@ Foundation milestones completed:
 - CAPSULE-005 (Telegram Operator Bot & Interactive Approvals): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
 - CAPSULE-006 (Content Engine & Multi-Platform Drafting): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
 - CAPSULE-007 (Social Publishing Scheduler & Postiz Adapter): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
-- CAPSULE-008 (Conversation Intake & Inbound Lead Qualification): COMPLETED on candidate branch `candidate/capsule-008-conversation-intake`.
-  - `InteractionRepository` (`marketing_plugin/repositories/interaction_repo.py`): Complete CRUD lifecycle and indexing for omnichannel interactions (WhatsApp, Telegram, Email, Web).
-  - `ConversationIntakeService` (`marketing_plugin/services/conversation_intake.py`): Inbound conversational processing, secret scrubbing (A-018, I-05), deterministic academic integrity guard (A-008), entity & lead resolution, intent & dual-funnel classification (A-003), and AI reply draft generation (`actor='agent_draft'`) gated by human approval (A-007, I-02, A-022).
-  - Telegram Operator `/intake` command (`marketing_plugin/services/telegram_operator.py`): Interactive inbound parsing with inline approval keyboard card for immediate operator sign-off.
-  - Hermes Domain Tools: Added `ingest_interaction` and `list_interactions` to `marketing_plugin/tools/domain_tools.py`, expanding `DOMAIN_TOOLS` to 8 tools.
-  - Comprehensive Verification Suite: `tests/unit/test_conversation_intake.py` (5 tests), `tests/integration/test_conversation_intake_pipeline.py` (3 tests), updated `test_domain_tools.py` and `test_telegram_operator.py`. Total test suite: 146 tests passing cleanly (100% pass rate in ~2.8s).
+- CAPSULE-008 (Conversation Intake & Inbound Lead Qualification): COMPLETED, merged to `main`, and pushed to public GitHub repository (`https://github.com/YazanAi-Dev3/MarketingOS`).
+- CAPSULE-009 (Outbound Outreach Generation & Follow-up Sequences): COMPLETED on candidate branch `candidate/capsule-009-outbound-outreach`.
+  - Data Models (`schemas/models.py`): Added `OutreachStepType` enum (`INITIAL_PITCH`, `VALUE_CASE`, `BREAKAWAY`), `OutreachMessage` model, and `OutreachCadencePlan` model.
+  - `OutboundEngine` (`marketing_plugin/services/outbound_engine.py`): Personalized, evidence-grounded 3-touch follow-up cadence generation, omnichannel adaptation (Email, WhatsApp, LinkedIn), strict academic integrity compliance (A-008: legitimate research methodology mentoring only, zero ghostwriting), secret scrubbing (A-018, I-05), draft interaction logging (`actor='agent_draft'`), human approval gating (A-007, I-02, A-022), and contact attempt recording with closed-loop lead lifecycle progression (`QUALIFIED` -> `OUTREACH_READY` -> `CONTACTED`, `next_action="awaiting_lead_reply"` per M-01, M-12).
+  - Telegram Operator `/outreach` command (`marketing_plugin/services/telegram_operator.py`): Generates outbound proposal card with Step 1 draft and interactive inline approval buttons (`[Approve & Send]`, `[Reject]`, `[Rewrite]`), and automated callback lead progression to `CONTACTED` upon approval.
+  - Hermes Domain Tools: Added `generate_outreach` and `record_contact_attempt` to `marketing_plugin/tools/domain_tools.py`, expanding `DOMAIN_TOOLS` to 10 tools.
+  - Comprehensive Verification Suite: `tests/unit/test_outbound_engine.py` (6 tests), `tests/integration/test_outbound_pipeline.py` (2 tests), updated `test_domain_tools.py` (15 tests) and `test_telegram_operator.py` (16 tests). Total test suite: 160 tests passing cleanly (100% pass rate in ~2.45s).
 
 Next immediate steps (Phase 3):
-1. Outbound outreach generation & follow-up cadence automation with founder approval dispatch (A-007, I-02).
-2. Analytics & CRM export connectors.
+1. Analytics & CRM export connectors.
+2. Production deployment and monitoring harness.
 

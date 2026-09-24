@@ -341,6 +341,82 @@ class TestTelegramOperatorService(unittest.TestCase):
         self.assertIn("REJECTED", res.text)
         self.assertIsNone(res.reply_markup)
 
+    # --- /outreach Command Tests ---
+
+    def test_help_command_includes_outreach(self):
+        """Verify /help lists the /outreach command."""
+        res = self.service.handle_command("/help", user_id="1001", chat_id="5001")
+        self.assertTrue(res.success)
+        self.assertIn("/outreach", res.text)
+
+    def test_outreach_command_missing_args(self):
+        """Verify /outreach with no args returns helpful usage instructions."""
+        res = self.service.handle_command("/outreach", user_id="1001", chat_id="5001")
+        self.assertFalse(res.success)
+        self.assertIn("طريقة استخدام أمر حملات التواصل", res.text)
+
+    def test_outreach_command_missing_lead(self):
+        """Verify /outreach with unknown lead returns not found error."""
+        res = self.service.handle_command("/outreach nonexistent_lead", user_id="1001", chat_id="5001")
+        self.assertFalse(res.success)
+        self.assertIn("غير موجود", res.text)
+
+    def test_outreach_command_generates_card_and_approval_callback(self):
+        """Verify /outreach generates proposal card with approval keyboard and callback advances lead to CONTACTED."""
+        company = Company(
+            company_id="comp_tg_outreach_01",
+            canonical_name="شركة التقنيات الحديثة للتوزيع",
+            primary_domain="modern-dist.sa",
+            country_code="SA",
+            sector="التجارة والتوزيع",
+            funnel=FunnelType.B2B,
+        )
+        self.company_repo.save_company(company)
+
+        lead = Lead(
+            lead_id="lead_tg_outreach_01",
+            company_id="comp_tg_outreach_01",
+            funnel=FunnelType.B2B,
+            status=LeadStatus.QUALIFIED,
+        )
+        self.lead_repo.save_lead(lead)
+
+        # 1. Run /outreach
+        cmd_res = self.service.handle_command("/outreach lead_tg_outreach_01 email", user_id="1001", chat_id="5001")
+        self.assertTrue(cmd_res.success)
+        self.assertIn("مقترح حملة تواصل خارجي", cmd_res.text)
+        self.assertIn("شركة التقنيات الحديثة للتوزيع", cmd_res.text)
+        self.assertIn("EMAIL", cmd_res.text)
+        self.assertIsNotNone(cmd_res.reply_markup)
+
+        # Verify lead status advanced to OUTREACH_READY
+        lead_ready = self.lead_repo.get_lead("lead_tg_outreach_01")
+        self.assertEqual(lead_ready.status, LeadStatus.OUTREACH_READY)
+
+        # Verify approval request was created
+        pending = self.approval_repo.list_pending(target_type="lead")
+        self.assertGreaterEqual(len(pending), 1)
+        outreach_approval = [a for a in pending if a.target_id == "lead_tg_outreach_01"][0]
+        self.assertEqual(outreach_approval.action_type, "outreach_send")
+
+        # 2. Simulate Founder Click [Approve]
+        cb_res = self.service.handle_callback(
+            f"appr:{outreach_approval.approval_id}:approved",
+            user_id="1001",
+            chat_id="5001",
+        )
+        self.assertTrue(cb_res.success)
+        self.assertEqual(cb_res.decision, "approved")
+
+        # Verify approval is approved in repository
+        resolved = self.approval_repo.get_approval(outreach_approval.approval_id)
+        self.assertEqual(resolved.decision, ApprovalDecision.APPROVED)
+
+        # Verify lead status automatically transitioned to CONTACTED (M-01)
+        lead_contacted = self.lead_repo.get_lead("lead_tg_outreach_01")
+        self.assertEqual(lead_contacted.status, LeadStatus.CONTACTED)
+        self.assertEqual(lead_contacted.next_action, "awaiting_lead_reply")
+
 
 if __name__ == "__main__":
     unittest.main()

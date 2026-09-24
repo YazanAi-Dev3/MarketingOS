@@ -4,7 +4,7 @@ from __future__ import annotations
 import re, sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-SKIP={".git",".venv","venv","__pycache__"}
+SKIP={".git",".venv","venv","__pycache__","tests"}
 BAD_BASENAMES={".env","firebase-service-account.json","service-account.json","credentials.json"}
 BAD_SUFFIXES={".pem",".p12",".pfx"}
 KEY_PATTERNS=[
